@@ -121,17 +121,13 @@ if __name__ == "__main__":
     my_tweets = []	
     with open(input_path, 'rb') as f:
         reader = csv.reader(f)
-    for row in itertools.islice(reader, index_start, index_start + 10000):
-        my_tweets.append(row)
-
+        for row in itertools.islice(reader, index_start, index_start + 10000):
+            my_tweets.append(row)
         for row in itertools.islice(reader, index_start, index_start + 10000):
           my_tweets.append(row)
-        print len(my_tweets)
-    print output_file	
     with open(output_file, 'w') as outf:
         for row in my_tweets:
             final_str = twtt1(row[5])
-            print 'part1'
             final_str = twtt2(final_str)
             final_str = twtt3(final_str)
             final_str = twtt4(final_str)
@@ -139,8 +135,6 @@ if __name__ == "__main__":
             final_str = twtt7(final_str)
             final_str = twtt8(final_str)
             final_str = twtt9(final_str, row[0])
-            print 'ready to write'
-            print output_file
             outf.write(final_str)
 
     print 'done'

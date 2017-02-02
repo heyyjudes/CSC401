@@ -4,6 +4,10 @@ import re
 import HTMLParser
 import NLPlib
 import itertools
+
+
+tagger = NLPlib.NLPlib()
+error_list = []
 def twtt1(input_str):
     ''' this function uses regular expression to remove html tags and attributes'''
     clean_txt = re.compile(r'<[^>]+>')
@@ -13,8 +17,12 @@ def twtt1(input_str):
 def twtt2(input_str):
     '''this function uses HTMLParser to change html character codes to ascii'''
     h = HTMLParser.HTMLParser()
-    new_str = h.unescape(input_str)
-    return new_str
+    try:
+        new_str = h.unescape(input_str)
+    except UnicodeDecodeError:
+        print 'cannot decode this file', input_str
+        error_list.append(input_str)
+    return input_str
 
 def twtt3(input_str):
     '''this function removes URLS by splitting string and looking for URL beginnings'''
@@ -84,7 +92,7 @@ def twtt7(input_str):
 
 def twtt8(input_str):
     '''tag each word with part of speech'''
-    tagger = NLPlib.NLPlib()
+
     sent_arr = input_str.split("\n")
     new_str_arr = []
     for sent in sent_arr:
@@ -111,12 +119,13 @@ def twtt9(input_str, polar):
 
 
 if __name__ == "__main__":
-    input_path = sys.argv[1]
-    student_id = sys.argv[2]
-    output_file = sys.argv[3]
+    #input_path = sys.argv[1]
+    #student_id = sys.argv[2]
+    #output_file = sys.argv[3]
+    student_id = 999735764
     index_start = (int(student_id)%80)*10000
-    #input_path = 'training_small.csv'
-    #output_file = 'train.twt'
+    input_path = '/u/cs401/A1/tweets/training.1600000.processed.noemoticon.csv'
+    output_file = 'train.twt'
     #not implemented student number part
     my_tweets = []	
     with open(input_path, 'rb') as f:
@@ -125,18 +134,22 @@ if __name__ == "__main__":
             my_tweets.append(row)
         for row in itertools.islice(reader, index_start, index_start + 10000):
           my_tweets.append(row)
-    with open(output_file, 'w') as outf:
-        for row in my_tweets:
-            final_str = twtt1(row[5])
-            final_str = twtt2(final_str)
-            final_str = twtt3(final_str)
-            final_str = twtt4(final_str)
-            final_str = twtt5(final_str)
-            final_str = twtt7(final_str)
-            final_str = twtt8(final_str)
-            final_str = twtt9(final_str, row[0])
-            outf.write(final_str)
-
+    out_f = open(output_file, 'w')  
+    #with open(output_file, 'w') as outf:
+    i=0
+    for row in my_tweets:
+        final_str = twtt1(row[5])
+        final_str = twtt2(final_str)
+        final_str = twtt3(final_str)
+        final_str = twtt4(final_str)
+        final_str = twtt5(final_str)
+        final_str = twtt7(final_str)
+        final_str = twtt8(final_str)
+        final_str = twtt9(final_str, row[0])
+        out_f.write(final_str)
+        print i
+        i+=1
+    print error_list
     print 'done'
 
 

@@ -1,0 +1,335 @@
+import sys
+import re
+import os
+wordlist_url = 'Wordlists//'
+def feat1(input_str):
+    keywords = open(wordlist_url + 'First-person').read().splitlines()
+    keywords = [z.lower() for z in keywords]
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            test_token = token_arr[0].lower()
+            if test_token in keywords:
+                count += 1
+    return count
+
+def feat2(input_str):
+    keywords = open(wordlist_url + 'Second-person').read().splitlines()
+    keywords = [z.lower() for z in keywords]
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            test_token = token_arr[0].lower()
+            if test_token in keywords:
+                count += 1
+    return count
+
+def feat3(input_str):
+    keywords = open(wordlist_url + 'Third-person').read().splitlines()
+    keywords = [z.lower() for z in keywords]
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            test_token = token_arr[0].lower()
+            if test_token in keywords:
+                count += 1
+    return count
+
+def feat4(input_str):
+    ''' counting coordinating conjunctions CC tags'''
+    tag = "CC"
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            if len(token_arr) > 1:
+                if token_arr[1] == tag:
+                    count += 1
+    return count
+
+def feat5(input_str):
+    ''' counting past tense verbs VBD'''
+    tag = "VBD"
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            if len(token_arr) > 1:
+                if token_arr[1] == tag:
+                    count += 1
+    return count
+
+def feat6(input_str):
+    ''' counting future tense key words and compositions'''
+    tag = "VB"
+    keywords = ["'ll", "will", "gonna"]
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for i in range(0, len(tokens)):
+            token_arr = tokens[i].split("/")
+            if len(token_arr) > 1:
+                test_token = token_arr[0].lower()
+                if test_token in keywords:
+                    count += 1
+                elif i < len(tokens) - 2:
+                    #checking for going + to + VB case
+                    if test_token == "going" and tokens[i+1].split("/")[0] == "to" and tokens[i+2].split("/")[1] == tag:
+                        count +=1
+    return count
+
+def feat7(input_str):
+    ''' counting commas using tags'''
+    tag = ","
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            if len(token_arr) > 1:
+                if token_arr[1] == tag:
+                    count += 1
+    return count
+
+def feat8(input_str):
+    ''' counting counting colons and semi colons'''
+    tags = [";", ":"]
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            if len(token_arr) > 1:
+                #check actually sentence to avoid tagging errors
+                if token_arr[0] in tags:
+                    count += 1
+    return count
+
+def feat9(input_str):
+    ''' counting dashes'''
+    tag = "-"
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            if len(token_arr) > 1:
+                #dashes are not tagged by penn part of speech punctuation
+                if token_arr[0] == tag:
+                    count += 1
+    return count
+
+def feat10(input_str):
+    ''' counting dashes using tags'''
+    tags = ["(", ")"]
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            if len(token_arr) > 1:
+                if token_arr[1] in tags:
+                    count += 1
+    return count
+
+def feat11(input_str):
+    ''' counting ellipses'''
+    tag = "..."
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            if len(token_arr) > 1:
+                #dashes are not tagged by penn part of speech punctuation
+                if token_arr[0] == tag:
+                    count += 1
+    return count
+
+def feat12(input_str):
+    ''' counting common nouns using tags'''
+    tags = ["NN", "NNS"]
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            if len(token_arr) > 1:
+                if token_arr[1] in tags:
+                    count += 1
+    return count
+
+def feat13(input_str):
+    ''' counting proper nouns using tags'''
+    tags = ["NNP", "NNPS"]
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            if len(token_arr) > 1:
+                if token_arr[1] in tags:
+                    count += 1
+    return count
+
+def feat14(input_str):
+    ''' counting adverbs using tags'''
+    tags = ["RB", "RBR", "RBS"]
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            if len(token_arr) > 1:
+                if token_arr[1] in tags:
+                    count += 1
+    return count
+
+def feat15(input_str):
+    ''' counting wh-words using tags'''
+    tags = ["WDT", "WP", "WRB", "WP$"]
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            if len(token_arr) > 1:
+                if token_arr[1] in tags:
+                    count += 1
+    return count
+
+def feat16(input_str):
+    keywords = open(wordlist_url + 'Slang').read().splitlines()
+    keywords = [z.lower() for z in keywords]
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            test_token = token_arr[0].lower()
+            if test_token in keywords:
+                count += 1
+    return count
+
+def feat17(input_str):
+    count = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            if token_arr[0].isupper() and len(token_arr[0]) >= 2:
+                count+=1
+    return count
+
+def feat18(input_str):
+    length = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        length += len(tokens)
+    length /= len(sentences)*1.0
+    return length
+
+def feat19(input_str):
+    length = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = re.findall(r"[\w]+/", sent)
+        length += len(tokens)
+    length /= len(sentences)*1.0
+    return length
+
+def feat20(input_str):
+    length = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        length += 1
+    return length
+
+def create_arff(input_arr, labels, output_file, relation):
+    with open(output_file, 'w') as f:
+        f.write('@relation ' + relation + '\n')
+        for att in labels:
+            f.write('@attribute ' + att + " numeric\n")
+        f.write('@attribute class {pos, neg}' + '\n\n')
+        f.write('@data' + '\n')
+        for row in input_arr:
+            row = [str(z) for z in row]
+            row_str = ",".join(row)
+            f.write(row_str + '\n')
+
+if __name__ == "__main__":
+    #input_path = sys.argv[1]
+    #output_file = sys.argv[2]
+    #twt_limit = sys.argv[3]
+    input_path = 'train.twt'
+    output_file = 'train.arff'
+
+    with open(input_path, 'rb') as f:
+        feat_strs = ["1st_person", "2nd_person", "3nd_person", "coord_conj", "past_verb", " future_verb", " comma", \
+                     "colon", "dash", "parenthesis", "ellipses", "common_noun", " proper_nouns", "adverbs", "wh_words",\
+                    "slang", "upper", "all_length", "no_punc_length", "num_of_sent"]
+        tweets = f.readlines()
+        input_str = "".join(tweets)
+        tweets = re.split(r'<A=[0-4]>', input_str)
+        labels = re.findall(r'<A=[0-4]>', input_str)
+        tweets = tweets[len(tweets)-len(labels):] #removing first space after split
+        feature_vecs = []
+        for i in range(0, len(tweets)):
+            curr_tweet = tweets[i].lstrip("\r\n")
+            feat_arr = []
+            feat_arr.append(feat1(curr_tweet))
+            feat_arr.append(feat2(curr_tweet))
+            feat_arr.append(feat3(curr_tweet))
+            feat_arr.append(feat4(curr_tweet))
+            feat_arr.append(feat5(curr_tweet))
+            feat_arr.append(feat6(curr_tweet))
+            feat_arr.append(feat7(curr_tweet))
+            feat_arr.append(feat8(curr_tweet))
+            feat_arr.append(feat9(curr_tweet))
+            feat_arr.append(feat10(curr_tweet))
+            feat_arr.append(feat11(curr_tweet))
+            feat_arr.append(feat12(curr_tweet))
+            feat_arr.append(feat13(curr_tweet))
+            feat_arr.append(feat14(curr_tweet))
+            feat_arr.append(feat15(curr_tweet))
+            feat_arr.append(feat16(curr_tweet))
+            feat_arr.append(feat17(curr_tweet))
+            feat_arr.append(feat18(curr_tweet))
+            feat_arr.append(feat19(curr_tweet))
+            feat_arr.append(feat20(curr_tweet))
+            if labels[i][3] == 0:
+                feat_arr.append("neg")
+            else:
+                feat_arr.append("pos")
+            feature_vecs.append(feat_arr)
+
+        create_arff(feature_vecs, feat_strs, output_file, 'sentiment')
+
+
+    print 'done'

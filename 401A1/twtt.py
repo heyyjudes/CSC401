@@ -3,7 +3,7 @@ import csv
 import re
 import HTMLParser
 import NLPlib
-
+import itertools
 def twtt1(input_str):
     ''' this function uses regular expression to remove html tags and attributes'''
     clean_txt = re.compile(r'<[^>]+>')
@@ -114,24 +114,34 @@ if __name__ == "__main__":
     input_path = sys.argv[1]
     student_id = sys.argv[2]
     output_file = sys.argv[3]
-    index_start = (student_id%80)*10000
+    index_start = (int(student_id)%80)*10000
     #input_path = 'training_small.csv'
     #output_file = 'train.twt'
     #not implemented student number part
+    my_tweets = []	
     with open(input_path, 'rb') as f:
-        reader = list(csv.reader(f))[index_start:index_start+9999] + list(csv.reader(f))[800000+index_start:800000+index_start+9999]
-        print len(reader)
-        with open(output_file, 'w') as outf:
-            for row in reader:
-                final_str = twtt1(row[5])
-                final_str = twtt2(final_str)
-                final_str = twtt3(final_str)
-                final_str = twtt4(final_str)
-                final_str = twtt5(final_str)
-                final_str = twtt7(final_str)
-                final_str = twtt8(final_str)
-                final_str = twtt9(final_str, row[0])
-                outf.write(final_str)
+        reader = csv.reader(f)
+	for row in itertools.islice(reader, index_start, index_start + 10000):
+          my_tweets.append(row)
+
+        for row in itertools.islice(reader, index_start, index_start + 10000):
+          my_tweets.append(row)
+        print len(my_tweets)
+    print output_file	
+    with open(output_file, 'w') as outf:
+ 	for row in my_tweets:
+	    final_str = twtt1(row[5])
+	    print 'part1'
+	    final_str = twtt2(final_str)
+	    final_str = twtt3(final_str)
+	    final_str = twtt4(final_str)
+	    final_str = twtt5(final_str)
+	    final_str = twtt7(final_str)
+	    final_str = twtt8(final_str)
+	    final_str = twtt9(final_str, row[0])
+	    print 'ready to write'
+	    print output_file
+	    outf.write(final_str)
 
     print 'done'
 

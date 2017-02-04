@@ -128,10 +128,9 @@ if __name__ == "__main__":
         reader = csv.reader(f)
         for row in itertools.islice(reader, index_start, index_start + 10000):
             my_tweets.append(row)
-        for row in itertools.islice(reader, index_start, index_start + 10000):
-          my_tweets.append(row)
-    out_f = open(output_file, 'w')  
-    #with open(output_file, 'w') as outf:
+        for row in itertools.islice(reader, index_start + 800000, index_start + 810000):
+            my_tweets.append(row)
+    out_f = open(output_file, 'w')
     i=0
     for row in my_tweets:
         final_str = twtt1(row[5])

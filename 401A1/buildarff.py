@@ -285,21 +285,23 @@ def create_arff(input_arr_pos, input_arr_neg, labels, output_file, relation, num
             f.write(row_str + '\n')
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('input_file')
-    # parser.add_argument('output_file')
-    # parser.add_argument('twt_limit', nargs='?')
-    # args = parser.parse_args()
-    # input_path = args.input_file
-    # output_file = args.output_file
-    # if args.twt_limit:
-    #     twt_limit = args.twt_limit
-    # else:
-    #     twt_limit = 10000
+    parser = argparse.ArgumentParser()
+    parser.add_argument('input_file')
+    parser.add_argument('output_file')
+    parser.add_argument('twt_limit', nargs='?')
+    args = parser.parse_args()
+    input_path = args.input_file
+    output_file = args.output_file
+    if args.twt_limit:
+        twt_limit = args.twt_limit
+        if twt_limit >= 20000:
+            twt_limit = 10000
+    else:
+        twt_limit = 10000
 
-    input_path = 'train.twt'
-    output_file = 'train.arff'
-    twt_limit = 50
+    # input_path = 'train.twt'
+    # output_file = 'train.arff'
+    # twt_limit = 50
 
     with open(input_path, 'rb') as f:
         feat_strs = ["1st_person", "2nd_person", "3nd_person", "coord_conj", "past_verb", " future_verb", " comma", \
@@ -341,10 +343,6 @@ if __name__ == "__main__":
             elif labels[i][3] == '4':
                 feat_arr.append("pos")
                 feature_vecs_pos.append(feat_arr)
-        else:
-            print 'couldnt find tag'
-        print 'pos_len', len(feature_vecs_pos)
-        print 'neg_len', len(feature_vecs_neg)
 
         create_arff(feature_vecs_pos, feature_vecs_neg, feat_strs, output_file, 'sentiment', twt_limit)
 

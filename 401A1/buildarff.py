@@ -1,6 +1,6 @@
 import sys
 import re
-import os
+import argparse
 wordlist_url = 'Wordlists//'
 def feat1(input_str):
     keywords = open(wordlist_url + 'First-person').read().splitlines()
@@ -271,7 +271,8 @@ def feat20(input_str):
         length += 1
     return length
 
-def create_arff(input_arr, labels, output_file, relation):
+def create_arff(input_arr_pos, input_arr_neg, labels, output_file, relation, num=10000):
+    input_arr = input_arr_pos[:num+1] + input_arr_neg[:num+1]
     with open(output_file, 'w') as f:
         f.write('@relation ' + relation + '\n')
         for att in labels:
@@ -284,11 +285,21 @@ def create_arff(input_arr, labels, output_file, relation):
             f.write(row_str + '\n')
 
 if __name__ == "__main__":
-    #input_path = sys.argv[1]
-    #output_file = sys.argv[2]
-    #twt_limit = sys.argv[3]
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('input_file')
+    # parser.add_argument('output_file')
+    # parser.add_argument('twt_limit', nargs='?')
+    # args = parser.parse_args()
+    # input_path = args.input_file
+    # output_file = args.output_file
+    # if args.twt_limit:
+    #     twt_limit = args.twt_limit
+    # else:
+    #     twt_limit = 10000
+
     input_path = 'train.twt'
     output_file = 'train.arff'
+    twt_limit = 50
 
     with open(input_path, 'rb') as f:
         feat_strs = ["1st_person", "2nd_person", "3nd_person", "coord_conj", "past_verb", " future_verb", " comma", \
@@ -299,7 +310,8 @@ if __name__ == "__main__":
         tweets = re.split(r'<A=[0-4]>', input_str)
         labels = re.findall(r'<A=[0-4]>', input_str)
         tweets = tweets[len(tweets)-len(labels):] #removing first space after split
-        feature_vecs = []
+        feature_vecs_pos = []
+        feature_vecs_neg = []
         for i in range(0, len(tweets)):
             curr_tweet = tweets[i].lstrip("\r\n")
             feat_arr = []
@@ -323,13 +335,17 @@ if __name__ == "__main__":
             feat_arr.append(feat18(curr_tweet))
             feat_arr.append(feat19(curr_tweet))
             feat_arr.append(feat20(curr_tweet))
-            if labels[i][3] == 0:
+            if labels[i][3] == '0':
                 feat_arr.append("neg")
-            else:
+                feature_vecs_neg.append(feat_arr)
+            elif labels[i][3] == '4':
                 feat_arr.append("pos")
-            feature_vecs.append(feat_arr)
+                feature_vecs_pos.append(feat_arr)
+        else:
+            print 'couldnt find tag'
+        print 'pos_len', len(feature_vecs_pos)
+        print 'neg_len', len(feature_vecs_neg)
 
-        create_arff(feature_vecs, feat_strs, output_file, 'sentiment')
-
+        create_arff(feature_vecs_pos, feature_vecs_neg, feat_strs, output_file, 'sentiment', twt_limit)
 
     print 'done'

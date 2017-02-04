@@ -114,18 +114,14 @@ def twtt9(input_str, polar):
     new_str = header_str+input_str
     return new_str
 
-
-
-
-
 if __name__ == "__main__":
-    #input_path = sys.argv[1]
-    #student_id = sys.argv[2]
-    #output_file = sys.argv[3]
-    student_id = 999735764
+    input_path = sys.argv[1]
+    student_id = sys.argv[2]
+    output_file = sys.argv[3]
+    #student_id = 999735764
     index_start = (int(student_id)%80)*10000
-    input_path = '/u/cs401/A1/tweets/training.1600000.processed.noemoticon.csv'
-    output_file = 'train.twt'
+    #input_path = '/u/cs401/A1/tweets/training.1600000.processed.noemoticon.csv'
+    #output_file = 'train.twt'
     #not implemented student number part
     my_tweets = []	
     with open(input_path, 'rb') as f:
@@ -146,7 +142,7 @@ if __name__ == "__main__":
         final_str = twtt7(final_str)
         final_str = twtt8(final_str)
         final_str = twtt9(final_str, row[0])
-        out_f.write(final_str)
+        out_f.write(final_str + '\n')
         print i
         i+=1
     print error_list

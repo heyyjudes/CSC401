@@ -6,6 +6,8 @@ import NLPlib
 import itertools
 
 
+wordlist_url = '/u/cs401/Wordlists/'
+#wordlist_url = ''
 tagger = NLPlib.NLPlib()
 error_list = []
 def twtt1(input_str):
@@ -56,6 +58,8 @@ def twtt7(input_str):
     '''separate clitics and punctuation by spaces'''
     output_arr = []
     sentences = input_str.split("\n")
+    abbrev = open(wordlist_url + 'abbrev.english').read().splitlines()
+    abbrev = [z.lower().rstrip('.') for z in abbrev]
     for sent in sentences:
         #finds all words and punctuation
         tokens = re.findall(r"[\w']+|[-.,!?;*%&<:()\"\\]+", sent)
@@ -64,7 +68,27 @@ def twtt7(input_str):
         last_three = ["t", "ve", "ll", "re"]
         last_two = ["s", "d", "m"]
         last_four = ["all"]
-        for word in tokens:
+        i = 0
+        len_tok = len(tokens)
+        while(i < len_tok):
+            #find abbreviations
+            #check if word is in abbreviations
+            test_token = tokens[i].lower()
+            if test_token in abbrev:
+                #check if at end of sentence
+                if i+1 < len_tok:
+                    #check if next token is period (it was abbrev before)
+                    if tokens[i+1] == '.':
+                        new_str = tokens[i] + tokens[i+1]
+                        tokens[i] = new_str
+                        del tokens[i+1]
+                        i += 1
+                        len_tok -= 1
+            i+=1
+
+        for i in range(0, len(tokens)):
+            #find contractions
+            word = tokens[i]
             contract_split = word.split("'")
             if len(contract_split) > 1 :
                 #adding .lower() also check for all caps endings
@@ -77,7 +101,7 @@ def twtt7(input_str):
                 elif contract_split[-1].lower() in last_four:
                     new_sent.append(word[:-4])
                     new_sent.append(word[-4:])
-                #to check fro possessive on plurals
+                #to check for possessive on plurals
                 elif contract_split[-2].lower().endswith('s') and contract_split[-1] == "":
                     new_sent.append(word[:-1])
                     new_sent.append(word[-1:])
@@ -86,6 +110,8 @@ def twtt7(input_str):
                     new_sent = new_sent + word_tokens
             else:
                 new_sent.append(word)
+
+
         sent_str = " ".join(new_sent)
         output_arr.append(sent_str)
     new_str = "\n".join(output_arr)
@@ -119,20 +145,24 @@ if __name__ == "__main__":
     input_path = sys.argv[1]
     student_id = sys.argv[2]
     output_file = sys.argv[3]
+
+    # input_path = 'training_small.csv'
+    # student_id = '999735764'
+    # output_file = 'training_small.twt'
     index_start = (int(student_id)%80)*10000
 
     my_tweets = []	
     with open(input_path, 'rb') as f:
         reader = csv.reader(f)
-	for row in reader: 
-	  my_tweets.append(row)
-	if len(my_tweets) > 400: 
-	  new_tweets = [] 
-          for row in itertools.islice(my_tweets, index_start, index_start + 10000):
+        for row in reader:
+            my_tweets.append(row)
+    if len(my_tweets) == 1600000:
+        new_tweets = []
+        for row in itertools.islice(my_tweets, index_start, index_start + 10000):
             new_tweets.append(row)
-          for row in itertools.islice(my_tweets, index_start + 800000, index_start + 810000):
+        for row in itertools.islice(my_tweets, index_start + 800000, index_start + 810000):
             new_tweets.append(row)
-	  my_tweets = new_tweets
+        my_tweets = new_tweets
     out_f = open(output_file, 'w')
     for row in my_tweets:
         final_str = twtt1(row[5])

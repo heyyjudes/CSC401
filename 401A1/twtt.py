@@ -20,7 +20,8 @@ def twtt2(input_str):
     try:
         new_str = h.unescape(input_str)
     except UnicodeDecodeError:
-        print 'cannot decode this file', input_str
+        #debugging foreign characters 
+        #print 'cannot decode this file', input_str
         error_list.append(input_str)
     return input_str
 
@@ -118,20 +119,21 @@ if __name__ == "__main__":
     input_path = sys.argv[1]
     student_id = sys.argv[2]
     output_file = sys.argv[3]
-    #student_id = 999735764
     index_start = (int(student_id)%80)*10000
-    #input_path = '/u/cs401/A1/tweets/training.1600000.processed.noemoticon.csv'
-    #output_file = 'train.twt'
-    #not implemented student number part
+
     my_tweets = []	
     with open(input_path, 'rb') as f:
         reader = csv.reader(f)
-        for row in itertools.islice(reader, index_start, index_start + 10000):
-            my_tweets.append(row)
-        for row in itertools.islice(reader, index_start + 800000, index_start + 810000):
-            my_tweets.append(row)
+	for row in reader: 
+	  my_tweets.append(row)
+	if len(my_tweets) > 400: 
+	  new_tweets = [] 
+          for row in itertools.islice(my_tweets, index_start, index_start + 10000):
+            new_tweets.append(row)
+          for row in itertools.islice(my_tweets, index_start + 800000, index_start + 810000):
+            new_tweets.append(row)
+	  my_tweets = new_tweets
     out_f = open(output_file, 'w')
-    i=0
     for row in my_tweets:
         final_str = twtt1(row[5])
         final_str = twtt2(final_str)
@@ -142,10 +144,6 @@ if __name__ == "__main__":
         final_str = twtt8(final_str)
         final_str = twtt9(final_str, row[0])
         out_f.write(final_str + '\n')
-        print i
-        i+=1
-    print error_list
-    print 'done'
 
 
 

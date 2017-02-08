@@ -1,7 +1,7 @@
 import sys
 import re
 import argparse
-wordlist_url = 'Wordlists//'
+wordlist_url = '/u/cs401/Wordlists/'
 def feat1(input_str):
     keywords = open(wordlist_url + 'First-person').read().splitlines()
     keywords = [z.lower() for z in keywords]

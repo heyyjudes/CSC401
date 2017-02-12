@@ -1,0 +1,75 @@
+training set 500 per class
+
+=== Attribute Selection on all input data ===
+
+Search Method:
+	Attribute ranking.
+
+Attribute Evaluator (supervised, Class (nominal): 21 class):
+	Information Gain Ranking Filter
+
+Ranked attributes:
+ 0.0215   14 adverbs
+ 0.0189    1 1st_person
+ 0.0178   19 no_punc_length
+ 0.0174    2 2nd_person
+ 0.0144   18 all_length
+ 0         6 future_verb
+ 0         8 colon
+ 0         7 comma
+ 0         3 3nd_person
+ 0         5 past_verb
+ 0         4 coord_conj
+ 0        16 slang
+ 0        15 wh_words
+ 0        20 num_of_sent
+ 0        17 upper
+ 0        10 parenthesis
+ 0         9 dash
+ 0        13 proper_nouns
+ 0        11 ellipses
+ 0        12 common_noun
+
+Selected attributes: 14,1,19,2,18,6,8,7,3,5,4,16,15,20,17,10,9,13,11,12 : 20
+
+training set for 10000 examples in each class 
+
+=== Attribute Selection on all input data ===
+
+Search Method:
+	Attribute ranking.
+
+Attribute Evaluator (supervised, Class (nominal): 21 class):
+	Information Gain Ranking Filter
+
+Ranked attributes:
+ 0.025622    2 2nd_person
+ 0.020207    1 1st_person
+ 0.009835   14 adverbs
+ 0.006275    5 past_verb
+ 0.003567   12 common_noun
+ 0.002029   11 ellipses
+ 0.001912    9 dash
+ 0.001594    7 comma
+ 0.001319   18 all_length
+ 0.000971   19 no_punc_length
+ 0.000769   13 proper_nouns
+ 0.000627    6 future_verb
+ 0.000572   17 upper
+ 0.000516    8 colon
+ 0.000481    3 3nd_person
+ 0.000462    4 coord_conj
+ 0          16 slang
+ 0          20 num_of_sent
+ 0          10 parenthesis
+ 0          15 wh_words
+
+Selected attributes: 2,1,14,5,12,11,9,7,18,19,13,6,17,8,3,4,16,20,10,15 : 20
+
+Similarities
+The features 2nd person pronouns, 1st person pronouns and adverbs remain important with relatively high information gain at both low and high levels of imput data. These three features are likley to have correlated with the class label in the first n=500 training set as well as the n=10000 training set. With the n=10000 training set, the features that truly reveal information about the class label more likely to be found. 
+
+Differences 
+Tweet length with (all_length) and without (no_punc_length) punctuation were important with the 500 training set but became less important in the 10000 training set. These two length features were likely correlated to the class label in the first 500 training set by coincidence but not indicative of of the features truly indicative of the class label. 
+   
+There is a larger information gain difference between the first 2 features and the 3rd feature in the n=10000 that between the features in the n=500 set. This also shows more training examples better distinguish features of high infromation gain from features of lower information gain. 

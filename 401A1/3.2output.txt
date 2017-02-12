@@ -1,0 +1,47 @@
+3.2 output of varying training set for Decision Tree Classifier
+
++-----------+---------------+
+| Train Set | Test Accuracy |
++-----------+---------------+
+| 500       | 52.65         |
++-----------+---------------+
+| 1000      | 56.27         |
++-----------+---------------+
+| 1500      | 57.38         |
++-----------+---------------+
+| 2000      | 52.64         |
++-----------+---------------+
+| 2500      | 51.25         |
++-----------+---------------+
+| 3000      | 58.77         |
++-----------+---------------+
+| 3500      | 51.34         |
++-----------+---------------+
+| 4000      | 55.71         |
++-----------+---------------+
+| 4500      | 53.76         |
++-----------+---------------+
+| 5000      | 53.92         |
++-----------+---------------+
+| 5500      | 50.97         |
++-----------+---------------+
+| 6000      | 54.32         |
++-----------+---------------+
+| 6500      | 53.48         |
++-----------+---------------+
+| 7000      | 54.60         |
++-----------+---------------+
+| 7500      | 54.60         |
++-----------+---------------+
+| 8000      | 54.87         |
++-----------+---------------+
+| 8500      | 55.99         |
++-----------+---------------+
+| 9000      | 51.25         |
++-----------+---------------+
+| 9500      | 54.04         |
++-----------+---------------+
+| 10000     | 53.48         |
++-----------+---------------+
+
+The highest accuracy occurs at 3000 tweets for each class in the training set. The training set sizes 1000-4000 have the highest accuracy but the accruacy flucates a lot. As the training set increases, the test accuracy decreases a little bit. This is likely because the decision tree classifier overfits the training data with a larger number of training examples. However, the variance of the accuracy decreases with higher number of training examples because the trees built begins to converge with a higher number of training examples in the training set.  

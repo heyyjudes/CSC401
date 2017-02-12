@@ -272,13 +272,14 @@ def feat20(input_str):
     return length
 
 def create_arff(input_arr_pos, input_arr_neg, labels, output_file, relation, num=10000):
-    input_arr = input_arr_pos[:num+1] + input_arr_neg[:num+1]
+    input_arr = input_arr_pos[:num] + input_arr_neg[:num]
     with open(output_file, 'w') as f:
         f.write('@relation ' + relation + '\n')
         for att in labels:
             f.write('@attribute ' + att + " numeric\n")
         f.write('@attribute class {pos, neg}' + '\n\n')
         f.write('@data' + '\n')
+        print len(input_arr)
         for row in input_arr:
             row = [str(z) for z in row]
             row_str = ",".join(row)
@@ -289,19 +290,16 @@ if __name__ == "__main__":
     parser.add_argument('input_file')
     parser.add_argument('output_file')
     parser.add_argument('twt_limit', nargs='?')
+    #for cross validation files
+    parser.add_argument('folds', nargs='?')
     args = parser.parse_args()
     input_path = args.input_file
     output_file = args.output_file
+    twt_limit = 10000
     if args.twt_limit:
-        twt_limit = args.twt_limit
+        twt_limit = int(args.twt_limit)
         if twt_limit >= 20000:
             twt_limit = 10000
-    else:
-        twt_limit = 10000
-
-    # input_path = 'train.twt'
-    # output_file = 'train.arff'
-    # twt_limit = 50
 
     with open(input_path, 'rb') as f:
         feat_strs = ["1st_person", "2nd_person", "3nd_person", "coord_conj", "past_verb", " future_verb", " comma", \
@@ -340,10 +338,28 @@ if __name__ == "__main__":
             if labels[i][3] == '0':
                 feat_arr.append("neg")
                 feature_vecs_neg.append(feat_arr)
+                #breaking when we have reached limit
+                if len(feature_vecs_neg) >= twt_limit and len(feature_vecs_pos) >= twt_limit:
+                    break
             elif labels[i][3] == '4':
                 feat_arr.append("pos")
                 feature_vecs_pos.append(feat_arr)
+                #breaking when we have reached limit
+                if len(feature_vecs_neg) >= twt_limit and len(feature_vecs_pos) >= twt_limit:
+                    break
+        if args.folds:
+            num_splits = int(args.folds)
+            size = twt_limit / num_splits
+            output_str = 'cv' + str(i)+'_'+output_file
+            while num_splits > 0:
+                beg = (num_splits-1)*size
+                end = (num_splits-1)*size+size
+                output_str = 'cv' + str(num_splits) + '_' + output_file
+                print 'creating split beg: ', beg, ' end: ', end, ' to arff file', output_str
+                create_arff(feature_vecs_pos[beg:end], feature_vecs_neg[beg:end], feat_strs, output_str, 'sentiment_cv', size)
+                num_splits -= 1
 
-        create_arff(feature_vecs_pos, feature_vecs_neg, feat_strs, output_file, 'sentiment', twt_limit)
+        else:
+            create_arff(feature_vecs_pos, feature_vecs_neg, feat_strs, output_file, 'sentiment', twt_limit)
 
     print 'done'

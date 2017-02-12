@@ -1,8 +1,13 @@
 import sys
 import re
 import argparse
+import nltk
 #wordlist_url = 'Wordlists/'
 wordlist_url = '/u/cs401/Wordlists/'
+import csv
+
+#global porter stemmer
+porter = nltk.PorterStemmer()
 def feat1(input_str):
     keywords = open(wordlist_url + 'First-person').read().splitlines()
     keywords = [z.lower() for z in keywords]
@@ -272,6 +277,40 @@ def feat20(input_str):
         length += 1
     return length
 
+def build_dic_anew():
+    input_file = csv.DictReader(open('Ratings_Warriner_et_al.csv', 'r'))
+    condensed_dict = {}
+    for row in input_file:
+        keyword = porter.stem(row["Word"]).lower()
+        condensed_dict[keyword] = (float(row["V.Mean.Sum"]), float(row["A.Mean.Sum"]), float(row["D.Mean.Sum"]))
+    return condensed_dict
+
+def feat_anew(input_str, dict):
+    anew_count = total_count = avg_val = avg_aff = avg_dom = 0
+    sentences = input_str.split("\n")
+    for sent in sentences:
+        tokens = sent.split(" ")
+        for token in tokens:
+            token_arr = token.split("/")
+            test_token = porter.stem(token_arr[0]).lower()
+            if test_token in dict:
+                val, aff, dom = dict[test_token]
+                anew_count+=1
+                avg_val += val
+                avg_aff += aff
+                avg_dom += dom
+            total_count += 1
+    if anew_count > 0:
+        avg_val = avg_val/anew_count
+        avg_aff = avg_aff/anew_count
+        avg_dom = avg_dom/anew_count
+    else:
+        avg_val = 0
+        avg_aff = 0
+        avg_dom = 0
+    return avg_val, avg_aff, avg_dom
+
+
 def create_arff(input_arr_pos, input_arr_neg, labels, output_file, relation, num=10000):
     input_arr = input_arr_pos[:num] + input_arr_neg[:num]
     with open(output_file, 'w') as f:
@@ -305,7 +344,7 @@ if __name__ == "__main__":
     with open(input_path, 'rb') as f:
         feat_strs = ["1st_person", "2nd_person", "3nd_person", "coord_conj", "past_verb", " future_verb", " comma", \
                      "colon", "dash", "parenthesis", "ellipses", "common_noun", " proper_nouns", "adverbs", "wh_words",\
-                    "slang", "upper", "all_length", "no_punc_length", "num_of_sent"]
+                    "slang", "upper", "all_length", "no_punc_length", "num_of_sent", "val", "aff", "dom"]
         tweets = f.readlines()
         input_str = "".join(tweets)
         tweets = re.split(r'<A=[0-4]>', input_str)
@@ -313,6 +352,7 @@ if __name__ == "__main__":
         tweets = tweets[len(tweets)-len(labels):] #removing first space after split
         feature_vecs_pos = []
         feature_vecs_neg = []
+        anew_dict = build_dic_anew()
         for i in range(0, len(tweets)):
             curr_tweet = tweets[i].lstrip("\r\n")
             feat_arr = []
@@ -336,6 +376,11 @@ if __name__ == "__main__":
             feat_arr.append(feat18(curr_tweet))
             feat_arr.append(feat19(curr_tweet))
             feat_arr.append(feat20(curr_tweet))
+            val, aff, dom = feat_anew(curr_tweet, anew_dict)
+            feat_arr.append(val)
+            feat_arr.append(aff)
+            feat_arr.append(dom)
+
             if labels[i][3] == '0':
                 feat_arr.append("neg")
                 feature_vecs_neg.append(feat_arr)
@@ -355,13 +400,11 @@ if __name__ == "__main__":
             while num_splits > 0:
                 beg = (num_splits-1)*size
                 end = (num_splits-1)*size+size
-                output_str_train = 'cvtrain' + str(num_splits) + '_' + output_file
-                output_str_test = 'cvtest' + str(num_splits) + '_' + output_file
+                output_str = 'cv' + str(num_splits) + '_' + output_file
                 print 'creating split beg: ', beg, ' end: ', end, ' to arff file', output_str
                 cross_pos = feature_vecs_pos[:beg] + feature_vecs_pos[end:]
                 cross_neg = feature_vecs_neg[:beg] + feature_vecs_neg[end:]
-                create_arff(cross_pos, cross_neg, feat_strs, output_str_train, 'sentiment_cv', size*9)
-                create_arff(feature_vecs_pos[beg:end], feature_vecs_neg[beg:end], feat_strs, output_str_test, 'sentiment_cv', size)
+                create_arff(cross_pos, cross_neg, feat_strs, output_str, 'sentiment_cv', size*9)
                 num_splits -= 1
 
         else:

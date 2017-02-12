@@ -1,6 +1,7 @@
 import sys
 import re
 import argparse
+#wordlist_url = 'Wordlists/'
 wordlist_url = '/u/cs401/Wordlists/'
 def feat1(input_str):
     keywords = open(wordlist_url + 'First-person').read().splitlines()
@@ -356,7 +357,9 @@ if __name__ == "__main__":
                 end = (num_splits-1)*size+size
                 output_str = 'cv' + str(num_splits) + '_' + output_file
                 print 'creating split beg: ', beg, ' end: ', end, ' to arff file', output_str
-                create_arff(feature_vecs_pos[beg:end], feature_vecs_neg[beg:end], feat_strs, output_str, 'sentiment_cv', size)
+                cross_pos = feature_vecs_pos[:beg] + feature_vecs_pos[end:]
+                cross_neg = feature_vecs_neg[:beg] + feature_vecs_neg[end:]
+                create_arff(cross_pos, cross_neg, feat_strs, output_str, 'sentiment_cv', size*9)
                 num_splits -= 1
 
         else:

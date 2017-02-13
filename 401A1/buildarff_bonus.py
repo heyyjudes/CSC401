@@ -228,6 +228,7 @@ def feat15(input_str):
     return count
 
 def feat16(input_str):
+    '''counting slangs with slang wordlist '''
     keywords = open(wordlist_url + 'Slang').read().splitlines()
     keywords = [z.lower() for z in keywords]
     count = 0
@@ -242,6 +243,7 @@ def feat16(input_str):
     return count
 
 def feat17(input_str):
+    '''countind number of words ALL in uppercase'''
     count = 0
     sentences = input_str.split("\n")
     for sent in sentences:
@@ -253,6 +255,7 @@ def feat17(input_str):
     return count
 
 def feat18(input_str):
+    '''finding average length of sentence'''
     length = 0
     sentences = input_str.split("\n")
     for sent in sentences:
@@ -262,15 +265,18 @@ def feat18(input_str):
     return length
 
 def feat19(input_str):
+    '''finding average length of sentences without punctuation'''
     length = 0
     sentences = input_str.split("\n")
     for sent in sentences:
+        #looking for words only before the /tag
         tokens = re.findall(r"[\w]+/", sent)
         length += len(tokens)
     length /= len(sentences)*1.0
     return length
 
 def feat20(input_str):
+    '''counting number of sentences'''
     length = 0
     sentences = input_str.split("\n")
     for sent in sentences:
@@ -278,6 +284,7 @@ def feat20(input_str):
     return length
 
 def build_dic_anew():
+    '''building dictionary for ANEW WORDS'''
     input_file = csv.DictReader(open('Ratings_Warriner_et_al.csv', 'r'))
     condensed_dict = {}
     for row in input_file:
@@ -286,6 +293,7 @@ def build_dic_anew():
     return condensed_dict
 
 def feat_anew(input_str, dict):
+    '''calcualte average valance, dominance and affect of tweets'''
     anew_count = total_count = avg_val = avg_aff = avg_dom = 0
     sentences = input_str.split("\n")
     for sent in sentences:

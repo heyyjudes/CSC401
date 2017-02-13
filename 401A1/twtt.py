@@ -137,6 +137,7 @@ def twtt8(input_str):
 
 
 def twtt9(input_str, polar):
+    '''adding polarity to each tweet'''
     header_str = '<A=' + polar + '>\n'
     new_str = header_str+input_str
     return new_str
@@ -146,9 +147,7 @@ if __name__ == "__main__":
     student_id = sys.argv[2]
     output_file = sys.argv[3]
 
-    # input_path = 'training_small.csv'
-    # student_id = '999735764'
-    # output_file = 'training_small.twt'
+    #logic to calculate index of training set
     index_start = (int(student_id)%80)*10000
 
     my_tweets = []	

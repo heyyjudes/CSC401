@@ -1,3 +1,7 @@
+Results for Decision tree classifier
+
+Both SVM and NB performed worse on test set
+
 Time taken to build model: 5.69 seconds
 Time taken to test model on training data: 0.14 seconds
 

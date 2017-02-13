@@ -223,6 +223,7 @@ def feat15(input_str):
     return count
 
 def feat16(input_str):
+    '''counting slangs with slang wordlist '''
     keywords = open(wordlist_url + 'Slang').read().splitlines()
     keywords = [z.lower() for z in keywords]
     count = 0
@@ -237,6 +238,7 @@ def feat16(input_str):
     return count
 
 def feat17(input_str):
+    '''countind number of words ALL in uppercase'''
     count = 0
     sentences = input_str.split("\n")
     for sent in sentences:
@@ -248,6 +250,7 @@ def feat17(input_str):
     return count
 
 def feat18(input_str):
+    '''finding average length of sentence'''
     length = 0
     sentences = input_str.split("\n")
     for sent in sentences:
@@ -257,6 +260,7 @@ def feat18(input_str):
     return length
 
 def feat19(input_str):
+    '''finding average length of sentences without punctuation'''
     length = 0
     sentences = input_str.split("\n")
     for sent in sentences:
@@ -266,6 +270,7 @@ def feat19(input_str):
     return length
 
 def feat20(input_str):
+    '''counting number of sentences'''
     length = 0
     sentences = input_str.split("\n")
     for sent in sentences:
@@ -273,6 +278,7 @@ def feat20(input_str):
     return length
 
 def create_arff(input_arr_pos, input_arr_neg, labels, output_file, relation, num=10000):
+    '''helper function for writing arff file'''
     input_arr = input_arr_pos[:num] + input_arr_neg[:num]
     with open(output_file, 'w') as f:
         f.write('@relation ' + relation + '\n')
@@ -280,7 +286,7 @@ def create_arff(input_arr_pos, input_arr_neg, labels, output_file, relation, num
             f.write('@attribute ' + att + " numeric\n")
         f.write('@attribute class {pos, neg}' + '\n\n')
         f.write('@data' + '\n')
-        print len(input_arr)
+        #print len(input_arr)
         for row in input_arr:
             row = [str(z) for z in row]
             row_str = ",".join(row)
@@ -348,7 +354,9 @@ if __name__ == "__main__":
                 #breaking when we have reached limit
                 if len(feature_vecs_neg) >= twt_limit and len(feature_vecs_pos) >= twt_limit:
                     break
+
         if args.folds:
+            #option for creating cross validation
             num_splits = int(args.folds)
             size = twt_limit / num_splits
             output_str = 'cv' + str(i)+'_'+output_file

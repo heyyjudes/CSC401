@@ -1,0 +1,305 @@
+For the bonus section, I attempted two extra exercises. 
+
+I added 3 more features using the Affective Norms For English Words dictionary (I have included the dictionary file .csv in the submission)
+
+BONUS PART 1: MORE FEATURES 
+
+SVM classifier results with 3 new features. 
+
+Time taken to build model: 6.62 seconds
+Time taken to test model on training data: 0.27 seconds
+
+=== Error on training data ===
+
+Correctly Classified Instances       13036               65.18   %
+Incorrectly Classified Instances      6964               34.82   %
+Kappa statistic                          0.3036
+Mean absolute error                      0.3482
+Root mean squared error                  0.5901
+Relative absolute error                 69.64   %
+Root relative squared error            118.0169 %
+Total Number of Instances            20000     
+
+
+=== Confusion Matrix ===
+
+    a    b   <-- classified as
+ 6647 3353 |    a = pos
+ 3611 6389 |    b = neg
+
+
+=== Error on test data ===
+
+Correctly Classified Instances         246               68.5237 %
+Incorrectly Classified Instances       113               31.4763 %
+Kappa statistic                          0.3704
+Mean absolute error                      0.3148
+Root mean squared error                  0.561 
+Relative absolute error                 62.9526 %
+Root relative squared error            112.2075 %
+Total Number of Instances              359     
+
+
+=== Confusion Matrix ===
+
+   a   b   <-- classified as
+ 125  57 |   a = pos
+  56 121 |   b = neg
+
+
+Naive Bayes Classifier with new features 
+
+Time taken to build model: 0.23 seconds
+Time taken to test model on training data: 1.06 seconds
+
+=== Error on training data ===
+
+Correctly Classified Instances       12681               63.405  %
+Incorrectly Classified Instances      7319               36.595  %
+Kappa statistic                          0.2681
+Mean absolute error                      0.4259
+Root mean squared error                  0.4951
+Relative absolute error                 85.1828 %
+Root relative squared error             99.0252 %
+Total Number of Instances            20000     
+
+
+=== Confusion Matrix ===
+
+    a    b   <-- classified as
+ 6738 3262 |    a = pos
+ 4057 5943 |    b = neg
+
+
+=== Error on test data ===
+
+Correctly Classified Instances         222               61.8384 %
+Incorrectly Classified Instances       137               38.1616 %
+Kappa statistic                          0.2355
+Mean absolute error                      0.4558
+Root mean squared error                  0.5233
+Relative absolute error                 91.1539 %
+Root relative squared error            104.6587 %
+Total Number of Instances              359     
+
+
+=== Confusion Matrix ===
+
+   a   b   <-- classified as
+ 123  59 |   a = pos
+  78  99 |   b = neg
+
+Decision Tree classifier on new features 
+
+Time taken to build model: 4.24 seconds
+Time taken to test model on training data: 0.31 seconds
+
+=== Error on training data ===
+
+Correctly Classified Instances       17244               86.22   %
+Incorrectly Classified Instances      2756               13.78   %
+Kappa statistic                          0.7244
+Mean absolute error                      0.2106
+Root mean squared error                  0.3245
+Relative absolute error                 42.1245 %
+Root relative squared error             64.9034 %
+Total Number of Instances            20000     
+
+
+=== Confusion Matrix ===
+
+    a    b   <-- classified as
+ 8692 1308 |    a = pos
+ 1448 8552 |    b = neg
+
+
+=== Error on test data ===
+
+Correctly Classified Instances         237               66.0167 %
+Incorrectly Classified Instances       122               33.9833 %
+Kappa statistic                          0.3201
+Mean absolute error                      0.3687
+Root mean squared error                  0.5234
+Relative absolute error                 73.7439 %
+Root relative squared error            104.6747 %
+Total Number of Instances              359     
+
+
+=== Confusion Matrix ===
+
+   a   b   <-- classified as
+ 122  60 |   a = pos
+  62 115 |   b = neg
+
+
+Using the three new features from the ANEW dictionary, I was able to increase the accuracy from 53.1 percent (3.1output.txt) to 68.52 percent. See buildarff_bonus.py for implementation 
+
+
+=== Attribute Selection on all input data ===
+
+Search Method:
+	Attribute ranking.
+
+Attribute Evaluator (supervised, Class (nominal): 24 class):
+	Information Gain Ranking Filter
+
+Ranked attributes:
+ 0.102437   21 val
+ 0.078682   23 dom
+ 0.025622    2 2nd_person
+ 0.020207    1 1st_person
+ 0.009835   14 adverbs
+ 0.008411   22 aff
+ 0.006275    5 past_verb
+ 0.003567   12 common_noun
+ 0.002029   11 ellipses
+ 0.001912    9 dash
+ 0.001594    7 comma
+ 0.001319   18 all_length
+ 0.000971   19 no_punc_length
+ 0.000769   13 proper_nouns
+ 0.000627    6 future_verb
+ 0.000572   17 upper
+ 0.000516    8 colon
+ 0.000481    3 3nd_person
+ 0.000462    4 coord_conj
+ 0          15 wh_words
+ 0          20 num_of_sent
+ 0          16 slang
+ 0          10 parenthesis
+
+Selected attributes: 21,23,2,1,14,22,5,12,11,9,7,18,19,13,6,17,8,3,4,15,20,16,10 : 23
+
+The new features I added: val, dom and aff all have high information gain compared to the first 20 features. Clearly adding these 3 new features increased the trained model's ability to distinugish negative tweets from positive ones. 
+
+BONUS PART TWO: MORE CLASSIFIERS 
+
+Logistic Regression
+
+Time taken to build model: 3.28 seconds
+Time taken to test model on training data: 0.27 seconds
+
+=== Error on training data ===
+
+Correctly Classified Instances       13023               65.115  %
+Incorrectly Classified Instances      6977               34.885  %
+Kappa statistic                          0.3023
+Mean absolute error                      0.4341
+Root mean squared error                  0.4657
+Relative absolute error                 86.8197 %
+Root relative squared error             93.1327 %
+Total Number of Instances            20000     
+
+
+=== Confusion Matrix ===
+
+    a    b   <-- classified as
+ 6548 3452 |    a = pos
+ 3525 6475 |    b = neg
+
+
+=== Error on test data ===
+
+Correctly Classified Instances         240               66.8524 %
+Incorrectly Classified Instances       119               33.1476 %
+Kappa statistic                          0.3372
+Mean absolute error                      0.436 
+Root mean squared error                  0.4639
+Relative absolute error                 87.2033 %
+Root relative squared error             92.7702 %
+Total Number of Instances              359     
+
+
+=== Confusion Matrix ===
+
+   a   b   <-- classified as
+ 120  62 |   a = pos
+  57 120 |   b = neg
+
+Neural Network (Multilayer perceptron) 
+
+Time taken to build model: 95.85 seconds
+Time taken to test model on training data: 0.38 seconds
+
+=== Error on training data ===
+
+Correctly Classified Instances       13678               68.39   %
+Incorrectly Classified Instances      6322               31.61   %
+Kappa statistic                          0.3678
+Mean absolute error                      0.3891
+Root mean squared error                  0.4524
+Relative absolute error                 77.8106 %
+Root relative squared error             90.4714 %
+Total Number of Instances            20000     
+
+
+=== Confusion Matrix ===
+
+    a    b   <-- classified as
+ 6035 3965 |    a = pos
+ 2357 7643 |    b = neg
+
+
+=== Error on test data ===
+
+Correctly Classified Instances         246               68.5237 %
+Incorrectly Classified Instances       113               31.4763 %
+Kappa statistic                          0.3716
+Mean absolute error                      0.3858
+Root mean squared error                  0.4558
+Relative absolute error                 77.1695 %
+Root relative squared error             91.1659 %
+Total Number of Instances              359     
+
+
+=== Confusion Matrix ===
+
+   a   b   <-- classified as
+ 113  69 |   a = pos
+  44 133 |   b = neg
+
+ADA boost (ADAboostM1) 
+
+Time taken to build model: 1.61 seconds
+Time taken to test model on training data: 0.19 seconds
+
+=== Error on training data ===
+
+Correctly Classified Instances       13040               65.2    %
+Incorrectly Classified Instances      6960               34.8    %
+Kappa statistic                          0.304 
+Mean absolute error                      0.4289
+Root mean squared error                  0.4631
+Relative absolute error                 85.7772 %
+Root relative squared error             92.6113 %
+Total Number of Instances            20000     
+
+
+=== Confusion Matrix ===
+
+    a    b   <-- classified as
+ 7040 2960 |    a = pos
+ 4000 6000 |    b = neg
+
+
+=== Error on test data ===
+
+Correctly Classified Instances         277               77.1588 %
+Incorrectly Classified Instances        82               22.8412 %
+Kappa statistic                          0.5432
+Mean absolute error                      0.4067
+Root mean squared error                  0.4351
+Relative absolute error                 81.3381 %
+Root relative squared error             87.0113 %
+Total Number of Instances              359     
+
+
+=== Confusion Matrix ===
+
+   a   b   <-- classified as
+ 140  42 |   a = pos
+  40 137 |   b = neg
+
+I compared logistic regression, ADAboost and a multi layer neural network in classification accuracy on the test set with 23 features. As expected logistic regression (just a single layer neural network) did the worst with 66.85% accuracy on the test set. Multi layer neural network did a bit better but it was the combinational model Adaboost that worked best achieving an accuracy of 77.16%. It makes sense that boosting achieves the highest accuracy since it is a combination of classifiers each trained to achieve accuracy for a specific cluster of data. 
+
+After the 2 bonus sections, my final result achieves an accuracy more than 20% higher than the original classifiers with 20 dimension input features vectors. 

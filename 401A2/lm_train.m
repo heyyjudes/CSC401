@@ -49,8 +49,28 @@ for iFile=1:length(DD)
     words = strsplit(' ', processedLine );
     
     % TODO: THE STUDENT IMPLEMENTS THE FOLLOWING
-
-    % TODO: THE STUDENT IMPLEMENTED THE PRECEDING
+    %Counting Unigrams 
+    for w=1:len(words)
+        curr = words{w};
+        if isfield(LM.uni, curr)
+            LM.uni.(curr) = LM.uni.(curr) + 1; 
+        else
+            LM.uni.(curr) = 1 ; 
+        end 
+    %Count bigrams
+        %count if last word 
+        if w+1 < len(words)
+            next = words{w+1}; 
+            if isfield(LM.bi, curr) && isfield(LM.bi.curr, next)
+                    LM.bi.(curr).(next) = LM.bi.(curr).(next) + 1; 
+            else 
+                LM.bi.(curr).(next) = 1; 
+            end 
+            
+        end 
+        
+    end 
+    
   end
 end
 

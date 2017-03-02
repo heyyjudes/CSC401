@@ -35,7 +35,7 @@ function outSentence = preprocess( inSentence, language )
   %Separate sentence punctualtions (final punc, commas, semicolons,
   %parenthesises, mathematical operations and
   %quotations marks)
-  outSentence = regexprep(outSentence, '([.,!"+-_<>=?()]?)', ' $1 ');
+  outSentence = regexprep(inSentence, '[.,!"+-<>=?()]+', ' $& ');
   
   %separate dashes between parentheses
   outSentence = regexprep(outSentence, '\<(-)\>', ' $1 '); 

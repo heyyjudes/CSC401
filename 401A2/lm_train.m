@@ -46,12 +46,12 @@ for iFile=1:length(DD)
   for l=1:length(lines)
 
     processedLine =  preprocess(lines{l}, language);
-    words = strsplit(' ', processedLine );
+    words = strsplit(' ', processedLine ); 
     
     % TODO: THE STUDENT IMPLEMENTS THE FOLLOWING
     %Counting Unigrams 
-    for w=1:len(words)
-        curr = words{w};
+    for w=1:(length(words))
+        curr = char(words(w)); 
         if isfield(LM.uni, curr)
             LM.uni.(curr) = LM.uni.(curr) + 1; 
         else
@@ -59,9 +59,9 @@ for iFile=1:length(DD)
         end 
     %Count bigrams
         %count if last word 
-        if w+1 < len(words)
-            next = words{w+1}; 
-            if isfield(LM.bi, curr) && isfield(LM.bi.curr, next)
+        if w < length(words)
+            next = char(words(w+1)); 
+            if isfield(LM.bi, curr) && isfield(LM.bi.(curr), next)
                     LM.bi.(curr).(next) = LM.bi.(curr).(next) + 1; 
             else 
                 LM.bi.(curr).(next) = 1; 

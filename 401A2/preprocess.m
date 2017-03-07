@@ -26,7 +26,7 @@ function outSentence = preprocess( inSentence, language )
   inSentence = regexprep( inSentence, '\s+', ' '); 
 
   % initialize outSentence
-  outSentence = inSentence;
+  outSentence = inSentence; 
 
   % perform language-agnostic changes
   % TODO: your code here
@@ -35,10 +35,10 @@ function outSentence = preprocess( inSentence, language )
   %Separate sentence punctualtions (final punc, commas, semicolons,
   %parenthesises, mathematical operations and
   %quotations marks)
-  outSentence = regexprep(inSentence, '[.,!"+-<>=?()]+', ' $& ');
+  outSentence = regexprep(inSentence, '[.,!"+-<>=?()]+', ' $&'); 
   
   %separate dashes between parentheses
-  outSentence = regexprep(outSentence, '\<(-)\>', ' $1 '); 
+  outSentence = regexprep(outSentence, '\<(-)\>', ' $1'); 
   
   switch language
    case 'e'
@@ -57,9 +57,14 @@ function outSentence = preprocess( inSentence, language )
         for ending = {'l''', 'j''', 't''', ' qu''', 'puisqu''', 'lorsqu'''}
                outSentence = regexprep(outSentence, ending, '$0 '); 
         end 
-    
+   
+
+
 
   end
+  
+    % trim whitespaces down again  
+  outSentence = regexprep( outSentence, '\s+', ' ');  
 
   % change unpleasant characters to codes that can be keys in dictionaries
   outSentence = convertSymbols( outSentence );

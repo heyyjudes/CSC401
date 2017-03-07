@@ -76,6 +76,37 @@ function [eng, fre] = read_hansard(mydir, numSentences)
   %fre = {};
 
   % TODO: your code goes here.
+  % collecting english sentences
+  eng = {}; 
+  i = 0; 
+  DD        = dir( [ testDir, filesep, '*', 'e'] );
+  for iFile=1:length(DD)
+
+  lines = textread([testDir, filesep, DD(iFile).name], '%s','delimiter','\n');
+
+    for l=1:length(lines)
+
+        processedLine = preprocess(lines{l}, 'e');
+        eng{i} = strsplit(' ', processedLine); 
+        i = i + 1; 
+    end
+  end
+  
+    % collecting english sentences
+  fre = {}; 
+  i = 0; 
+  DD = dir( [ testDir, filesep, '*', 'f'] );
+  for iFile=1:length(DD)
+
+  lines = textread([testDir, filesep, DD(iFile).name], '%s','delimiter','\n');
+
+    for l=1:length(lines)
+
+        processedLine = preprocess(lines{l}, 'f');
+        fre{i} = strsplit(' ', processedLine); 
+        i = i + 1; 
+    end
+  end
 
 end
 
@@ -88,6 +119,25 @@ function AM = initialize(eng, fre)
     AM = {}; % AM.(english_word).(foreign_word)
 
     % TODO: your code goes here
+    for i=1:length(eng);
+        eng_sent = eng(i); 
+        french_sent = fre(i);
+        for w=1:length(eng_sent)
+            eng_word = char(eng_sent(w)); 
+            if isfield(AM, eng_word) == false
+                AM.(eng_word) = 1; 
+            end 
+            for j=1:length(fre_sent)
+                fre_word = french_sent(j); 
+                add_prob = 1/(length(eng_sent)); 
+                if isfield(AM.(eng_word), fre_word)
+                    AM.(eng_word).(fre_word) = AM.(eng_word).(fre_word) + add_prob; 
+                else 
+                    AM.(eng_word).(fre_word) = add_prob; 
+                end 
+            end 
+        end 
+    end 
 
 end
 
@@ -96,7 +146,60 @@ function t = em_step(t, eng, fre)
 % One step in the EM algorithm.
 %
   
-  % TODO: your code goes here
+  % TODOTODOTODOTODOTODOTODO 
+  tcount = zeros(, length(t.fieldnames)); 
+  total = zeros(length(eng)); 
+  
+  for i=length(eng)
+      eng_sent = eng(i); 
+      fre_sent = fre(i); 
+      eng_dict = {}; 
+      fre_dict = {}; 
+      %building frequency count 
+      for e=1:length(eng_sent)
+          eng_word = char(eng_sent(e)); 
+          if isfield(eng_dict, eng_word)
+              eng_dict.(eng_word) = eng_dict.(eng_word) + 1; 
+          else 
+              eng_dict.(eng_word) = 1; 
+          end 
+      end 
+      
+      for f=1:length(fre_sent)
+          fre_word = char(fre_sent(f)); 
+          if isfield(fre_dict, fre_word)
+              fre_dict.(fre_word) = fre_dict.(fre_word) + 1; 
+          else 
+              fre_dict.(fre_word) = 1; 
+          end 
+      end 
+      
+      %words non unique
+      f_fields = fieldnames(fre_dict); 
+      for f=1:numel(f_fields)
+          denom_c = 0; 
+          fre_word = fre_dict.(f_fields(f)); 
+          e_fields = fieldnames(eng_dict); 
+          for e=1:numel(e_field)
+              eng_word = eng_dict.(e_fields(e)); 
+              %assume bigram already in AM model 
+              P_ef = t.(eng_word).(fre_word); 
+              denom_c = denom_c + P_ef*fre_dict.(fre_word);
+          end 
+          for e=1:numel(e_field)
+              eng_word = eng_dict.(e_fields(e)); 
+              %assume bigram already in AM model 
+              P_ef = t.(eng_word).(fre_word); 
+              tcount(f, e) = tcount(f, e) + P_ef*fre_dict.(fre_word)*eng_dict.(eng_word)/denom_c; 
+              total(e) = total(e) + P_ef*fre_dict.(fre_word)*eng_dict.(eng_word)/denom_c;
+          end 
+      end      
+  end 
+  
+  for e=1:length(eng)
+      for f=1:length(fre)
+          
+      
 end
 
 

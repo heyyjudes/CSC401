@@ -44,8 +44,25 @@ function logProb = lm_prob(sentence, LM, type, delta, vocabSize)
     return;
   end
 
-  words = strsplit(' ', sentence);
-
+  words = strsplit(' ', sentence); 
+  logProb = 0; 
   % TODO: the student implements the following
-  % TODO: once upon a time there was a curmudgeonly orangutan named Jub-Jub.
-return
+  total_bi = vocabSize; 
+  for w=1:(length(words)-1)
+      curr = char(words(w)); 
+      next = char(words(w+1)); 
+      if isfield(LM.bi, curr) 
+          if isfield(LM.bi.(curr), next)  
+            currProb = (LM.bi.(curr).(next) + delta)/(LM.uni.(curr) + delta*total_bi);  
+          else 
+            currProb = delta;
+          end 
+      else 
+          currProb = delta;  
+      end 
+      %adding log probabilities same as taking log after multiplying
+      %probabilities
+      logProb = logProb + log2(currProb); 
+  end 
+      
+return 

@@ -55,10 +55,11 @@ function logProb = lm_prob(sentence, LM, type, delta, vocabSize)
           if isfield(LM.bi.(curr), next)  
             currProb = (LM.bi.(curr).(next) + delta)/(LM.uni.(curr) + delta*total_bi);  
           else 
-            currProb = delta;
+              bottom = LM.uni.(curr) + delta*total_bi; 
+            currProb = delta/bottom;
           end 
       else 
-          currProb = delta;  
+          currProb = 1/total_bi;  
       end 
       %adding log probabilities same as taking log after multiplying
       %probabilities

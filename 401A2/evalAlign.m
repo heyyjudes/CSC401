@@ -10,17 +10,20 @@ testDir      = '/u/cs401/A2_SMT/data/Hansard/Testing/';
 fn_LME       = 'LME_eng.mod';
 fn_LMF       = 'LMF_fre.mod';
 lm_type      =  'smooth';
-delta        = 0.1;
-vocabSize    = TODO; 
-numSentences = 1000;
+delta        = 0; 
+numSentences = 10000;
 maxIter = 5; 
 
 % Train your language models. This is task 2 which makes use of task 1
-LME = lm_train( trainDir, 'e', fn_LME );
-LMF = lm_train( trainDir, 'f', fn_LMF );
-
+%LME = lm_train( trainDir, 'e', fn_LME );
+%LMF = lm_train( trainDir, 'f', fn_LMF );
+LME = importdata(fn_LME); 
+LMF = importdata(fn_LMF); 
 % Train your alignment model of French, given English 
-AMFE = align_ibm1( trainDir, numSentences, maxIter, '1000_ibm.model');
+%AMFE = align_ibm1( trainDir, numSentences, maxIter, '1000_ibm.model');
+AMFE = importdata('30000_ibm.model'); 
+AMFE.('SENTSTART').('SENTSTART') = 1; 
+AMFE.('SENTEND').('SENTEND') = 1;
 
 %reading french and english files
 %reading French file for translation fre{} 
@@ -28,9 +31,9 @@ lines = textread([testDir, 'Task5.f'], '%s','delimiter','\n');
 fre = {}; 
 
 for l = 1:length(lines)
-    processedLine = preprocess(lines{l}, 'f');
+    fre{l} = preprocess(lines{l}, 'f');
     %creating cell array entry of words of english sentence i 
-    fre{l} = strsplit(' ', processedLine); 
+    %fre{l} = strsplit(' ', processedLine); 
 end 
 
 %reading Hanson english translation
@@ -51,16 +54,19 @@ for l = 1:length(lines)
     goog_eng{l} = strsplit(' ', processedLine); 
 end 
 
+vocabSize = length(fieldnames(LME)); 
 
-% Decode the test sentence 'fre'
-eng = decode( fre, LME, AMFE, 'smooth', delta, vocabSize );
 
+
+
+result = zeros(3, 25); 
 % BLEU Analysis
-for n=1:3
     for i=1:length(fre)
-        sent = eng{1}{i}; 
-        han_sent = han_eng{1}{i}; 
-        goog_sent = goog_eng{1}{i}; 
+        display(i)
+        % Decode the test sentence 'fre'
+        sent = decode(fre{i}, LME, AMFE, '', delta, vocabSize) 
+        han_sent = han_eng{i}
+        goog_sent = goog_eng{i}; 
         
         c_i = length(sent); 
         
@@ -82,24 +88,56 @@ for n=1:3
         u_count = 0; 
         %bigram percision
         b_count = 0; 
-        for w=1:length(sent)
-            mat_h = any(ismember(han_sent, sent{w})); 
-            mat_g = any(ismember(han_sent, sent{w})); 
-            if mat_h || mat_g
-                u_count = u_count + 1; 
-                bigram = [sent{w}, sent{w+1}]; 
-                if ismember(bigram, han_sent) || ismember(bigram, goog_sent)
-                    bigram_
-                end 
-                    
-            end 
-        end 
-         
-        %bigram percision
-        
         %trigram percison 
-    end 
-end 
+        t_count = 0; 
+        for w=1:length(sent)
+            mat_h = ismember(han_sent, sent{w}); 
+            mat_g = ismember(goog_sent, sent{w}); 
+            if any(mat_h) || any(mat_g)
+                u_count = u_count + 1; 
+                bigram_add = 0; 
+                trigram_add = 0; 
+                
+       
+                for b=1:(length(mat_h)-1)
+                    %check hansard for bigrams
+                    if mat_h(b) == 1 && b+1 < length(sent) && strcmp(han_sent{b+1},sent{b+1})
+                        bigram_add = 1; 
+                        %check for tri gram in hansard translation 
+                        if b+2 < length(mat_h) && b+2 < length(sent) && strcmp(han_sent{b+2}, sent{b+2})
+                            trigram_add = 1; 
+                        end 
+                    end 
+                end 
+                
+
+                for b=1:(length(mat_g)-1)
+                    %check google for bigram
+                    
+                    if mat_g(b) == 1 && b+1 < length(sent) && strcmp(goog_sent{b+1},sent{b+1})
+                        bigram_add = 1; 
+                        %check for google for trigrams
+                        if b+2 < length(mat_g) && b+2 < length(sent) && strcmp(goog_sent{b+2},sent{b+2})
+                            trigram_add = 1; 
+                        end
+                    end 
+                end 
+             %adding count for found bigram and trigram matches    
+             b_count = b_count + bigram_add; 
+             t_count = t_count + trigram_add; 
+            end
+        end 
+          u_count = u_count/length(sent); 
+          b_count = b_count/(length(sent)-1); 
+          t_count = t_count/(length(sent)-2); 
+     
+          result(1, i) = BP*u_count; 
+          result(2, i) = BP*sqrt(u_count*b_count); 
+          result(3, i) = BP*nthroot(u_count*b_count*t_count, 3); 
+    end      
+         
+     
+    
 
 
-[status, result] = unix('')
+%[status, result] = unix('')

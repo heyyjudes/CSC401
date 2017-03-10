@@ -185,7 +185,7 @@ function t = em_step(t, eng, fre)
 % One step in the EM algorithm.
 %
   %initializing tcount(f, e) with all zeros 
-tcount = struct(t); 
+  tcount = struct(t); 
   t_fields = fieldnames(tcount); 
   for i = 1:numel(fieldnames(tcount))
       en = t_fields{i};  
@@ -205,8 +205,8 @@ tcount = struct(t);
   %for each sentence pair in training
 
   for i=1:length(eng)
-      eng_sent = eng(i);
-      fre_sent = fre(i); 
+      eng_sent = eng(i)
+      fre_sent = fre(i) 
       eng_dict = {}; 
       fre_dict = {}; 
       
@@ -263,6 +263,9 @@ tcount = struct(t);
           t.(en).(fr{j}) = tcount.(en).(fr{j})/total.(en); 
       end 
   end  
+ t.('SENTSTART').('SENTSTART') = 1; 
+    %AM.('SENTSTART').('COUNTTT') = 1; 
+ t.('SENTEND').('SENTEND') = 1;
       
 end
 

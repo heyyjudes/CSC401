@@ -47,19 +47,32 @@ function logProb = lm_prob(sentence, LM, type, delta, vocabSize)
   words = strsplit(' ', sentence); 
   logProb = 0; 
   % TODO: the student implements the following
+  % setting |V| to be vocab size 
   total_bi = vocabSize; 
   for w=1:(length(words)-1)
       curr = char(words(w)); 
       next = char(words(w+1)); 
+      %check if first word exists in bigram 
       if isfield(LM.bi, curr) 
+          %check if 2nd word exists in bigram 
           if isfield(LM.bi.(curr), next)  
+              %if both curr and next are seen our probability is 
+              %(count(curr,next)+delta)/(count(curr) + delta|V|)
             currProb = (LM.bi.(curr).(next) + delta)/(LM.uni.(curr) + delta*total_bi);  
           else 
+              %if only curr is seen our probability is 
+              %delta/(count(curr) + delta|V|)
               bottom = LM.uni.(curr) + delta*total_bi; 
-            currProb = delta/bottom;
+              currProb = delta/bottom;
           end 
       else 
+          if delta == 0
+              currProb = 0; 
+          else 
+          %if curr is unseen 
+          %delta/(delta|V|) = 1/|v|
           currProb = 1/total_bi;  
+          end 
       end 
       %adding log probabilities same as taking log after multiplying
       %probabilities

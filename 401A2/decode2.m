@@ -95,6 +95,12 @@ for ifw=1:length(frenchWords)
   [b,ind] = sort(tmpScores, 'descend');
   scores(:,ifw) = b(1:N);
   englishWords(:,ifw) = VE(ind(1:N));
+  if ifw == 1
+    englishWords(:, ifw) = {'SENTSTART','SENTSTART','SENTSTART','SENTSTART','SENTSTART'};
+  end
+  if ifw == length(frenchWords)
+    englishWords(:, ifw) = {'SENTEND','SENTEND','SENTEND','SENTEND','SENTEND'};
+  end
 end 
 %englishWords
 

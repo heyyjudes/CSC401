@@ -1,4 +1,4 @@
-function outSentence = preprocess( inSentence, language )
+          function outSentence = preprocess( inSentence, language )
 %
 %  preprocess
 %
@@ -37,7 +37,8 @@ function outSentence = preprocess( inSentence, language )
   %quotations marks)
   outSentence = regexprep(inSentence, '[.,!"+-<>=?()]+', ' $&'); 
   
-  %separate dashes between parentheses
+  %separate dashes between parentheses 
+  %THIS WAS EXTREMELY UNCLEAR IN HANDOUT
   outSentence = regexprep(outSentence, '\<(-)\>', ' $1'); 
   
   switch language
@@ -57,10 +58,6 @@ function outSentence = preprocess( inSentence, language )
         for ending = {'l''', 'j''', 't''', ' qu''', 'puisqu''', 'lorsqu'''}
                outSentence = regexprep(outSentence, ending, '$0 '); 
         end 
-   
-
-
-
   end
   
     % trim whitespaces down again  

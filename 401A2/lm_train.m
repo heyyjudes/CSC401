@@ -52,18 +52,24 @@ for iFile=1:length(DD)
     %Counting Unigrams 
     for w=1:(length(words))
         curr = char(words(w)); 
+        %check of first word in already in structure 
         if isfield(LM.uni, curr)
+            %add 1 to existing coutn 
             LM.uni.(curr) = LM.uni.(curr) + 1; 
         else
+            %initialize count to 1
             LM.uni.(curr) = 1 ; 
         end 
     %Count bigrams
-        %count if last word 
+        %check if last word
         if w < length(words)
-            next = char(words(w+1)); 
+            next = char(words(w+1));
+            %check of second word is existing bigram 
             if isfield(LM.bi, curr) && isfield(LM.bi.(curr), next)
+                    %add 1 to existing bigram count 
                     LM.bi.(curr).(next) = LM.bi.(curr).(next) + 1; 
             else 
+                %initialize count to 1 
                 LM.bi.(curr).(next) = 1; 
             end 
             

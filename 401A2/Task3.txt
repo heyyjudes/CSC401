@@ -1,26 +1,46 @@
-eng model 
+Task3.txt 
+Perplexity report for log-likelihoods and add-delta log likelihoods 
 
+1. Perplexity over all sentences 
 
-pp0 =
+The following table summarizes the perplexity values for the french and 
+english models. 
++-------+----------------------+-------------------+
+| delta | English Perplexity   | French Perplexity |
++-------+----------------------+-------------------+
+| 0.0   | 15.2477              | 14.3071           |
++-------+----------------------+-------------------+
+| 0.1   | 53.5783              | 60.8489           |
++-------+----------------------+-------------------+
+| 0.2   | 73.1939              | 85.6519           |
++-------+----------------------+-------------------+
+| 0.6   | 129.3867             | 158.8741          |
++-------+----------------------+-------------------+
+| 0.9   | 162.5796             | 203.0056          |
++-------+----------------------+-------------------+
 
-   15.2477
+2. Trends 
 
+As delta increases, perplexity also increases. Adding more smoothing 
+increases the perplexity and decreases the log-likelihood of the data. 
 
-pp1 =
+From the 5 data points in each of the English and french sets, the slope 
+of perplexity over delta decreases as delta becomes closer to 1. This shows 
+that when the delta is close to 0 small changes in delta will affect 
+the perplexity significantly while when the delta is close to 1, changes in 
+delta will have a smaller effect on perplexity. 
 
-   53.5783
+3. Effect of delta on  perplexity (probability given to mle unseen) 
+& Pattern for MLE Perplexity  
 
+The lower the perplexity, the higher the log-likelihood of the data 
+since pp = 2^(-LL/N) where LL is the sum of log likelihoods. 
+However, in practice, when we want to calculate the 
+likelihood of a word the model has never seen before, we would have many zero
+probability sentences if 1 bigram or 1 unigram does not exist. Even though 
+a lower perplexity value means higher likelihood for the training set, adding 
+delta smoothing will yield better results when evalutating the probability of
+never before seen data. 
 
-pp2 =
-
-   73.1939
-
-
-pp6 =
-
-  129.3867
-
-
-pp9 =
-
-  162.5796
+We need to find delta such that we optimize the tradeoff off between perplexity 
+and test set performance. 

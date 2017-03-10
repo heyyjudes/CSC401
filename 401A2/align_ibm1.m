@@ -77,6 +77,7 @@ function [eng, fre] = read_hansard(mydir, numSentences)
   %fre = {};
 
   % TODO: your code goes here.
+  
   % collecting english sentences
   % preallocate for faster run time
   eng{1, numSentences} = [] ;  
@@ -87,9 +88,11 @@ function [eng, fre] = read_hansard(mydir, numSentences)
   lines = textread([mydir, filesep, DD(iFile).name], '%s','delimiter','\n');
 
     for l=1:length(lines)
+        %checking reading less than max sentences 
         if i > numSentences 
             break; 
         end 
+        %preprocess sentence
         processedLine = preprocess(lines{l}, 'e');
         %creating cell array entry of words of english sentence i 
         eng{i} = strsplit(' ', processedLine); 
@@ -108,9 +111,11 @@ function [eng, fre] = read_hansard(mydir, numSentences)
   lines = textread([mydir, filesep, DD(iFile).name], '%s','delimiter','\n');
     
     for l=1:length(lines)
+        %checking less than max sentences 
         if i > numSentences 
             break; 
         end 
+        %preprocess sentence
         processedLine = preprocess(lines{l}, 'f');
         %creating cell array entry of words of french sentence i 
         fre{i} = strsplit(' ', processedLine); 
@@ -129,49 +134,61 @@ function AM = initialize(eng, fre)
     %using 
     AM = struct(); % AM.(english_word).(foreign_word)
     
+    %force to 1 according to lab handout 
     AM.('SENTSTART').('SENTSTART') = 1; 
-    %AM.('SENTSTART').('COUNTTT') = 1; 
     AM.('SENTEND').('SENTEND') = 1; 
-    %AM.('SENTEND').('COUNTTT') = 1; 
     
-    %skipping sentstart and sentend 
+    %in these loops we iterate through all sentences and keep track of all
+    %french words that appear in the coresponding french sentence for each
+    %each unique english word 
     for i=1:(length(eng))
         eng_sent = eng(i); 
         fre_sent = fre(i);
         
+        %begin with 2 and sent with length-1 to skip SENTSTART and SENTEND
         %eng_sent is 1x8 cell we want the second dimension
         for w=2:(length(eng_sent{1})-1)
+            
             %we want to access the wth column of the first and only row 0f
-            %eng_sent 
             eng_word = char(eng_sent{1}{w}); 
+            
+            %check if word is already in struct 
             if isfield(AM, eng_word) == false
+                
+                %initialize new struct if not yet in struct 
                 AM.(eng_word) = struct();
-                %AM.(eng_word).('COUNTTT') = 0; 
             end 
             
             for j=2:(length(fre_sent{1})-1)
+            
             %we want to access the wth column of the first and only row 0f
             %eng_sent 
                 fre_word = char(fre_sent{1}{j}); 
-                %keeping count of total words that could align with eng
-                %word 
-                %AM.(eng_word).('COUNTTT') = AM.(eng_word).('COUNTTT') + 1; 
+                
+                %check if french sentence counterpart word already appeared  
                 if isfield(AM.(eng_word), fre_word)
+                    
+                    %increment count by 1 
+                    %we actually dont need to increment. I am just doing
+                    %this for sanity and for potentially more sofisticated
+                    %initalization methods 
                     AM.(eng_word).(fre_word) = AM.(eng_word).(fre_word) + 1; 
-                else 
+                else
+                    
+                    %initalize count to 1
                     AM.(eng_word).(fre_word) = 1; 
                 end  
             end                            
         end 
     end
     
+    %in this iteration we apply uniform probability for all french words
+    %seen in the corresponding sentence of a english word
     en_fields = fieldnames(AM); 
-    
     for i = 1:numel(en_fields)
             en = en_fields{i}; 
             fr_fields = fieldnames(AM.(en)); 
             %constant to divide all elements of en by total fn count 
-            %norm = AM.(en).('COUNTTT');
             norm = length(fr_fields); 
             for j = 1:numel(fr_fields)
                 fr = fr_fields{j}; 
@@ -184,7 +201,9 @@ function t = em_step(t, eng, fre)
 % 
 % One step in the EM algorithm.
 %
-  %initializing tcount(f, e) with all zeros 
+  
+%initializing tcount(f, e) with all zeros 
+%same structure of AM model 
   tcount = struct(t); 
   t_fields = fieldnames(tcount); 
   for i = 1:numel(fieldnames(tcount))
@@ -194,23 +213,25 @@ function t = em_step(t, eng, fre)
           tcount.(en).(fr{j}) = 0; 
       end 
   end 
-  disp(length(eng))
-  disp(length(fre))
-  %initalizing total 1-D struct with all zeros 
+  
+  %initalizing total total(e) struct with all zeros 
+  %copy structure of AM model 
   total = struct(t);
   t_fields = fieldnames(tcount); 
   for i = 1:numel(fieldnames(tcount))
+      
+      %replace en field struct with 0 
       total.(t_fields{i}) = 0; 
   end
+  
   %for each sentence pair in training
-
   for i=1:length(eng)
-      eng_sent = eng(i)
-      fre_sent = fre(i) 
+      eng_sent = eng(i);
+      fre_sent = fre(i);
       eng_dict = {}; 
       fre_dict = {}; 
       
-      %building frequency count 
+      %building frequency count for english words in sentence
       for e=2:(length(eng_sent{1})-1)
           eng_word = char(eng_sent{1}{e}); 
           if isfield(eng_dict, eng_word)
@@ -220,6 +241,7 @@ function t = em_step(t, eng, fre)
           end 
       end 
       
+      %build frequency count for french word in sentence 
       for f=2:(length(fre_sent{1})-1)
           fre_word = char(fre_sent{1}{f}); 
           if isfield(fre_dict, fre_word)
@@ -228,25 +250,30 @@ function t = em_step(t, eng, fre)
               fre_dict.(fre_word) = 1; 
           end 
       end 
-        
-      if isempty(eng_dict)
-          display('stopp'); 
-      end 
       
       %for each sentence pair in training 
+      %implement EM step according to sudo code
+      
+      %Expectation: update tcount(f, e), total(e)
       f_fields = fieldnames(fre_dict);
       for f=1:numel(f_fields)
+          
           denom_c = 0; 
           fre_word = f_fields{f}; 
           e_fields = fieldnames(eng_dict); 
+          
+          %calulate normalizing factor denom_c
           for e=1:numel(e_fields)
               eng_word = e_fields{e}; 
               %assume bigram already in AM model 
               P_ef = t.(eng_word).(fre_word); 
               denom_c = denom_c + P_ef*fre_dict.(fre_word);
           end 
+          
+          %update tcount(f, e) and total(e) with word probabilities in sentence   
           for e=1:numel(e_fields)
               eng_word = e_fields{e}; 
+              
               %assume bigram already in AM model 
               P_ef = t.(eng_word).(fre_word); 
               tcount.(eng_word).(fre_word) = tcount.(eng_word).(fre_word) + P_ef*fre_dict.(fre_word)*eng_dict.(eng_word)/denom_c; 
@@ -255,16 +282,18 @@ function t = em_step(t, eng, fre)
       end      
   end 
   
-  %maximization(f, e) with all zeros 
+  %Maximization: update P(f|e) 
   for i = 1:numel(fieldnames(tcount))
       en = t_fields{i};  
       for j = 1:numel(fieldnames(tcount.(en)))
           fr = fieldnames(tcount.(en)); 
+          %update P(f|e) = tcount(en, fr)/total(en)
           t.(en).(fr{j}) = tcount.(en).(fr{j})/total.(en); 
       end 
   end  
- t.('SENTSTART').('SENTSTART') = 1; 
-    %AM.('SENTSTART').('COUNTTT') = 1; 
+  
+ %force to 1 again just incase  
+ t.('SENTSTART').('SENTSTART') = 1;    
  t.('SENTEND').('SENTEND') = 1;
       
 end

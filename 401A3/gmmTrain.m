@@ -22,10 +22,10 @@ D = 14;
 speakers = dir(dir_train);
 speakers = speakers(~ismember({speakers.name},{'.','..'}));
 
-for s = 1: numel(2) 
+for s = 1: numel(speakers) 
+    %initializing name and weights
     gmms(s).name = speakers(s).name; 
     gmms(s).weights = ones(1, M)*1/M; 
-
     gmms(s).cov = ones(D, D, M);  
     for m = 1:M            
         gmms(s).cov(:, :, m) = diag(diag(gmms(s).cov(:, :, m))); 
@@ -33,6 +33,7 @@ for s = 1: numel(2)
     
     x_train = []; 
     utterances = dir([dir_train '/' speakers(s).name]); 
+    %reading utterances from file 
     for j = 1: numel(utterances)
         [patstr, name, ext] = fileparts(utterances(j).name); 
         if strcmp(ext, '.mfcc') 
@@ -50,77 +51,109 @@ for s = 1: numel(2)
         end
     end
     
-    gmms(s).means = x_train(20:20+M-1, :)'; 
+    %setting means as M Training examples
+    while 1
+        idx = randi([1,length(x_train)],M,1); % take M randnom samples from entire set
+        if length(unique(idx)) == M % make sure samples are unique, otherwise draw again
+            break;
+        end
+    end
+    gmms(s).means = x_train(idx, :)';
     
-    i = 0; 
+    iter = 0; 
     prev_L = -Inf; 
     improvement = Inf; 
-    while i <= max_iter && improvement >= epsilon
-        %logb over all training examples
-        temp_weights = zeros(1, M); 
-        temp_mu = zeros(D, M); 
-        temp_sigma = zeros(D, M); 
-        L = 0; 
-        for t = 1:10
-        %for t = 1:length(x_train)
-        % compute likelihood
-         % calculate probability
-            % find all log_b for each m 
-            x_t = x_train(t, :)'; 
-            log_b = zeros(M, 1); 
-            
-            for m=1:M
-  
-                sigma_sq = diag(gmms(s).cov(:, :, m).^2); 
-                mean_m = gmms(s).means(:, m); 
-                % sum of mean sq/variance sq         
-                norm_term = sum((mean_m.^2)./(2*(sigma_sq))) + D/2*log(2*pi)+ 1/2*log(prod(sigma_sq, 1)); 
-                % adding log_2 constant 
-                % norm_term = norm_term + D/2*log(2*pi); 
-                % add log of product of variance
-                % norm_term = norm_term + 1/2*log(prod(sigma_sq, 1));
-                
-  %             exmaple_term = 0; 
-                example_term = sum(0.5*(x_t.^2)./sigma_sq - (x_t).*mean_m./sigma_sq);
-                %example_term = sum(example_term,1); 
-                log_b(m, 1) = - example_term - norm_term; 
-                
-            end 
-            
-            %calculate each p_m 
-            log_wb = log(gmms(s).weights') + log_b;
-            
-            P = zeros(M, 1); 
-            for m=1:M 
-                P(m) = exp(log_wb(m))./sum(exp(log_wb)); 
-            end    
-            L = L + sum(log(P))    
-            temp_weights = temp_weights + P'; 
+    N = length(x_train);
+    while iter <= max_iter && improvement >= epsilon  
+        display(['Current iteration: ' num2str(iter)]);
+        
+        % for computational efficiency
+        inv_cov = zeros(D,D,M);
+        for m = 1:M
+            inv_cov(:,:,m) = inv(gmms(s).cov(:,:,m));
+        end
+
+        %%%%%%%%%%%
+        % Soft-EM %
+        %%%%%%%%%%%
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % E-step: Compute probability for each point %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        prob = zeros(M,N);
+        for i = 1:N
+            x_i = x_train(i,:)';
+
+            % compute probability for sample x_i to belong to component m
             for m = 1:M
-            temp_mu(:, m) = temp_mu(:, m) + P(m).*x_t; 
-            temp_sigma(:, m) = temp_sigma(:, m) + P(m).*x_t.^2;
+                mean_m = gmms(s).means(:, m);
+                cov_m = gmms(s).cov(:,:,m);
+                inv_cov_m = inv_cov(:,:,m);
+
+                prob(m,i) = gmms(s).weights(m)/((2*pi)^D * sqrt(det(cov_m))) * exp(-1/2*(x_i - mean_m)'*inv_cov_m*(x_i - mean_m));
+            end
+
+            % normalize probability
+            prob(:,i) = prob(:,i)/sum(prob(:,i));
+        end
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % M-step: Maximize log likelihood %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        weights_new = mean(prob,2)';
+        
+        means_new = zeros(D,M);
+        covs_new = zeros(D,D,M);
+        for m = 1:M % update mean and covariance for each component
+            mean_new = zeros(1,D);
+            cov_new = zeros(D,D);
+            
+            mean_m = gmms(s).means(:, m)';
+            
+            for i = 1:N
+                x_i = x_train(i, :);
+                
+                mean_new = mean_new + prob(m,i)*x_i;
+                cov_new = cov_new + prob(m,i)*diag(diag((x_i - mean_m)'*(x_i - mean_m)));
             end
             
-        end 
+            % normalize mean and covariance
+            means_new(:,m) = mean_new/sum(prob(m,:));
+            covs_new(:,:,m) = cov_new/sum(prob(m,:));% + 1/lambda*eye(D); % optional, to avoid degeneracy
+        end
         
-        gmms(s).weights = (temp_weights/length(x_train));  
-        for m =1:M
-        gmms(s).means(:, m) = (temp_mu(:, m)./temp_weights(m));  
-        temp_sigma(:, m) = (temp_sigma(:, m)./temp_weights(m) - gmms(s).means(:, m).^2)';            
-        gmms(s).cov(:, :, m) = sqrt(diag(temp_sigma(:, m))); 
-        end 
-         
-        
-        L = L/length(x_train) 
-        
+        % store new stimates
+        gmms(s).weights = weights_new;
+        gmms(s).means = means_new;
+        gmms(s).cov = covs_new;
 
-        % improvement and update prev L 
-        improvement = L - prev_L
+        % improvement and update prev L
+        L = 0;
+        % compute log likelihood of dataset
+        for i = 1:N
+            x_i = x_train(i,:)';
+            
+            likelihood = zeros(M,1);
+            for m = 1:M
+                mean_m = gmms(s).means(:, m);
+                cov_m = gmms(s).cov(:,:,m);
+                inv_cov_m = inv_cov(:,:,m);
+
+                likelihood(m) = gmms(s).weights(m)/((2*pi)^D * sqrt(det(cov_m))) * exp(-1/2*(x_i - mean_m)'*inv_cov_m*(x_i - mean_m));
+            end
+            
+            L = L + log(sum(likelihood));
+        end
+        improvement = L - prev_L;
+        prev_L = L;
+        display(['Loglikelihood: ' num2str(L)])
+        display(['Improvement: ' num2str(improvement)])
         
-
-        prev_L = L; 
-
-        i = i + 1; 
+        % increase number of iterations
+        iter = iter + 1;
+        
+        %%%%% FIX ME %%%%%%
+        improvement = 1; % sometimes (especially after a big step) we have an overshoot, but we don't want to quit our optimization yet.
     end 
     
 end 

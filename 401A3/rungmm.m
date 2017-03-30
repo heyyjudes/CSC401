@@ -1,6 +1,6 @@
-train = '/u/cs401/speechdata/Training';
+train = 'Training';
 e = 0.01; 
-max_itr = 10; 
+max_itr = 20; 
 M = 8; 
 
 

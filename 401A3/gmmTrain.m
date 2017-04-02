@@ -48,6 +48,7 @@ for s = 1: numel(speakers)
                 % add to existing mfcc 
                 x_train = cat(1, x_train, mfcc); 
             end 
+            fclose(fid); 
         end
     end
     
@@ -64,7 +65,7 @@ for s = 1: numel(speakers)
     prev_L = -Inf; 
     improvement = Inf; 
     N = length(x_train);
-    while iter <= max_iter && improvement >= epsilon  
+    while iter <= max_iter && abs(improvement) >= epsilon  
         display(['Current iteration: ' num2str(iter)]);
         
         % for computational efficiency
@@ -72,10 +73,6 @@ for s = 1: numel(speakers)
         for m = 1:M
             inv_cov(:,:,m) = inv(gmms(s).cov(:,:,m));
         end
-
-        %%%%%%%%%%%
-        % Soft-EM %
-        %%%%%%%%%%%
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % E-step: Compute probability for each point %
@@ -153,10 +150,11 @@ for s = 1: numel(speakers)
         iter = iter + 1;
         
         %%%%% FIX ME %%%%%%
-        improvement = 1; % sometimes (especially after a big step) we have an overshoot, but we don't want to quit our optimization yet.
+        %improvement = 1; % sometimes (especially after a big step) we have an overshoot, but we don't want to quit our optimization yet.
     end 
     
 end 
 
 
        
+save('gmms', 'gmms'); 

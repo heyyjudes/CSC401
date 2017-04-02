@@ -1,10 +1,10 @@
-dir_train = 'SmallTrain';
+dir_train = '/u/cs401/speechdata/Training';
 e = 0.01; 
 max_itr = 20; 
-M = 2; 
+M = 8; 
 D = 14; 
 
-addpath(genpath('bnt/BNT'))
+addpath(genpath('bnt/'))
 
 %Final all Phonemes% 
 phn = struct();
@@ -29,10 +29,10 @@ for s = 1: numel(speakers)
             mfcc = fscanf(fid, '%f %f %f %f %f %f %f %f %f %f %f %f %f %f', [14 Inf]); 
             mfcc = mfcc'; 
             fclose(fid); 
-        end
+        
 
         %look for phonemes 
-        open_str = [dir_train  '/' speakers(s).name '/' name '.phn']; 
+        open_str = [dir_train  '/' speakers(s).name '/' name '.phn'];  
         fid = fopen(open_str); 
         phlist = textscan(fid, '%d %d %s'); 
         fclose(fid); 
@@ -58,15 +58,17 @@ for s = 1: numel(speakers)
                 %increment count of found phonemes
             end 
         end 
-        
+        end 
     end  
 end 
 
 phn_fields = fieldnames(phn); 
 for i = 1:numel(phn_fields)
+    display(i); 
     field = char(phn_fields(i)); 
     phn.(field).('HMM') = initHMM(phn.(field).data, M, 3, 'kmeans');
     [HMM, LL] = trainHMM(phn.(field).HMM, phn.(field).data, 5); 
+    phn.(field).('HMM') = HMM; 
 end 
 
 save('phn', 'phn')

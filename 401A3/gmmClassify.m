@@ -2,12 +2,12 @@ train = '/u/cs401/speechdata/Training';
 test = '/u/cs401/speechdata/Testing';
 e = 100; 
 max_itr = 20; 
-M = 50; 
+M = 8; 
 D = 14; 
 
-model = gmmTrain(train, max_itr, e, M); 
-%model = load('gmms.mat'); 
-%model = model.gmms; 
+%model = gmmTrain(train, max_itr, e, M); 
+model = load('model_e0.01_it20.mat'); 
+model = model.gmms; 
 
 %read target labels
 fileID = fopen('TestingIDs1-15.txt');
@@ -72,10 +72,13 @@ for j = 1: numel(speakers_mfcc)
     %commented out for final submission%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    %unkn_str = ['unkn_' num{1} '.lik'];
-    %wrfileID = fopen(unkn_str, 'w');
-    %nbytes = fprintf(wrfileID, '%5d \n', maxValue); 
-    %fclose(wrfileID); 
+    unkn_str = ['unkn_' num{1} '.lik'];
+    wrfileID = fopen(unkn_str, 'w');
+    nbytes = fprintf(wrfileID, 'Loglikelihood : Pred speaker \n');
+    for line =1:5
+        nbytes = fprintf(wrfileID, '%5d : %s \n', maxValue(line), model(sortingIndicies(line)).name); 
+    end
+    fclose(wrfileID); 
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %calculating accuracy for part3    %

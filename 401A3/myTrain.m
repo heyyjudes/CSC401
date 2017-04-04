@@ -1,11 +1,11 @@
 dir_train = '/u/cs401/speechdata/Training';
 e = 0.01; 
 max_itr = 20; 
-M = 8; 
+M = 4; 
 D = 14; 
+N = 1; 
 
 addpath(genpath('bnt/'))
-
 %Final all Phonemes% 
 phn = struct();
 cp = 0; %current phoneme count
@@ -15,7 +15,7 @@ speakers = speakers(~ismember({speakers.name},{'.','..'}));
 
 %create dictionary to keep track of existing phonemes 
 % phoneme_map = containers.Map(); 
-for s = 1: numel(speakers) 
+for s = 1: numel(speakers)/2 
 
     utterances = dir([dir_train '/' speakers(s).name]); 
     utterances = utterances(~ismember({utterances.name},{'.','..'}));
@@ -27,6 +27,7 @@ for s = 1: numel(speakers)
             fid = fopen([dir_train  '/' speakers(s).name '/' utterances(j).name]);  
             %read mfcc 
             mfcc = fscanf(fid, '%f %f %f %f %f %f %f %f %f %f %f %f %f %f', [14 Inf]); 
+            mfcc = mfcc(1:D, :); 
             mfcc = mfcc'; 
             fclose(fid); 
         
@@ -66,9 +67,10 @@ phn_fields = fieldnames(phn);
 for i = 1:numel(phn_fields)
     display(i); 
     field = char(phn_fields(i)); 
-    phn.(field).('HMM') = initHMM(phn.(field).data, M, 3, 'kmeans');
+    phn.(field).('HMM') = initHMM(phn.(field).data, M, N, 'kmeans');
     [HMM, LL] = trainHMM(phn.(field).HMM, phn.(field).data, 5); 
     phn.(field).('HMM') = HMM; 
 end 
 
-save('phn', 'phn')
+savestr = ['phn_m' int2str(M) 'd' int2str(D) 'n' int2str(N) 'h']
+save(savestr, 'phn')

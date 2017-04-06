@@ -149,8 +149,6 @@ for s = 1: numel(speakers)
         % increase number of iterations
         iter = iter + 1;
         
-        %%%%% FIX ME %%%%%%
-        %improvement = 1; % sometimes (especially after a big step) we have an overshoot, but we don't want to quit our optimization yet.
     end 
     
 end 

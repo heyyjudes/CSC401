@@ -5,7 +5,7 @@ M = 4;
 D = 14; 
 N = 1; 
 
-addpath(genpath('bnt/'))
+addpath(genpath('/u/cs401/A3_ASR/code/FullBNT-1.0.7/')); 
 %Final all Phonemes% 
 phn = struct();
 cp = 0; %current phoneme count

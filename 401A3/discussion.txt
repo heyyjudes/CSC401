@@ -1,4 +1,86 @@
-3.2 Experiment and Discussion
+CSC411 Assignment 3 Disussion 
+Judy Hanwen Shen 999735764 talk2me ID: heyyjudes 
+
+2.1 Training Gaussian Mixture Models
+
+One of the TAs said for this assignment we could directly implement the 
+GMM without converting everything to the log format... so I left everything 
+in exponentials and it converges fine. 
+
+I get around -80k for likelihoods. See the next section for details. 
+
+2.2 Classifying Gaussian Mixture Models
+Each unkn_N.lik file contains top 5 speaker label prediction and the 
+loglikelihoods for each prediction. 
+
+2.3 Experiments and Discussion 
+
+2.3.1 Improvement
+Table with accuracy of predicting 15 speaker targets
++------+--------+--------+--------+----+----+
+| e\M  | 2      | 4      | 8      | 16 | 30 |
++------+--------+--------+--------+----+----+
+| 0.1  | 0.9333 | 0.9333 | 1      | 1  | 1  |
++------+--------+--------+--------+----+----+
+| 1    | 0.9333 | 0.9333 | 1      | 1  | 1  |
++------+--------+--------+--------+----+----+
+| 10   | 0.3333 | 0.8667 | 0.9333 | 1  | 1  |
++------+--------+--------+--------+----+----+
+| 100  | 0.2667 | 0.9333 | 1      | 1  | 1  |
++------+--------+--------+--------+----+----+
+
+As mixture components decrease, the accuracy gets a bit worse. In general, 
+adding more M mixture components improves accuracy. But once M gets too big
+there may be over fitting and the model will not generalize well to test 
+data. 
+
+As e increases, training stops earlier and earlier, so the accuracy gets 
+a bit worse as e increases to very large values. A smaller e will allow 
+training to continue for longer but also may cause overfitting to training 
+data if e is too small.  
+
+As the number of possible speakers decreases, accuracy increases because 
+there are fewer possible output classes. As an extreme example, 50% accuracy 
+in binary classification is basically guessing while 50% accuracy with 30 
+classes (speakers) is substantially better than guessing.     
+
+For maximum classification accuracy, e and M should be tuned to maximize 
+validation set accuracy (if we had one lol). By the experiment results, 
+Leaving the mixture components between 8 - 16 and e around 1 should yield 
+good test set accuracy. 
+
+One limitation of this test set is 15 example is a small set. We should
+generally use 1/10th our data for the test set. 
+
+A great extension method to improve accuracy is to use variational inference 
+to estimate the mean, variance and mixture coefficient. Instead of learning 
+the just 1 set of gmm parameters, we can approximate a distribution over 
+these parameters. We can better account for noise in the training examples 
+and make more robust generalizations.  
+
+2.3.2 Decision 
+If all of the speaker likelihoods are similar, then it might be better to 
+not output a speaker label. This means the model is unsure which speaker 
+the utterance belongs to. Also setting a minimum likelihood to use achieve 
+before outputting the results would further help filter predictions that 
+do not belong to any speaker. 
+
+2.3.3 Alternative Methods 
+Decision trees and feedforward neural networks have both been used for 
+speaker identification. This has been some work done about 20 years ago 
+where both decision trees and neural networks were combined to create
+modified neural tree network for speaker identification. Nearest neighbors 
+could also be a reasonable choice since a speakers new utterance may be close
+to a different utterance they made. The difficulty is the high dimensionality, 
+we likely need for normalizing each dimension for best results with K-nearest 
+neighbors.
+
+3.1 Training and Decoding Hidden Markov Models 
+Refer to attached code for correctness. 
+Refer to section 3.2 for discussion and results. 
+
+3.2 HMM Experiment and Discussion
+Each model was trained with 5 EM iterations 
 
 Parameters: 
 S: speakers for training 
@@ -24,3 +106,98 @@ N: states per sequence
 (15, 8, 14, 1) : 0.34560
 (15, 8, 7 , 3) : 0.32529
 (15, 8, 7 , 1) : 0.29537
+
+Overall classification accuracies were decent given that there were 59 
+difference classes of phonemes. The results are much better than guessing 
+all the models. 
+
+When the HMMs were training with less data (S=15) the accuracies much worse 
+than when the HMMs were trained with (S=30) speakers. This is expected since 
+more training examples from different speakers mean the models can better 
+learn the different representations of phonemes. 
+
+Higher dimensional train (D=14) performed better than lower dimensional data
+(D=7). To reduce dimension, I only took the first 7 dimensions. If more time, 
+was possible, taking the 7 principal components may allow for lower dimensional 
+models to produce similar accuracies as using the full 14 dimensions. It is likely 
+that there are dimensions from d = 8-14 that contain information for identifying 
+phonemes. 
+
+Single HMM (S=1) performed worse than 3 node HMMs (S=3). This shows that 
+modeling the start and ending separate from the middle of the phoneme 
+utterance allows better identification of the phoneme. This is consistent 
+with articulation principles and also may reflect the phoneme segmentation 
+challenges.  
+
+For the mixture components, M=8 performed better than M=4 for S = 15 while 
+the reverse was true for S=30. This may indicate overfitting when there are 
+8 mixtures centers trained with all the data. 
+
+3.2.1. Improvements 
+I would improve the accuracy of HMM models my training with more EM iterations. 
+I did my experiments with 5 EM iterations to save time. I would also better tune 
+they hyperparameters (S, M, D, N) to find how to achieve the highest test set 
+accuracy. For the parameters I tested,  I would run (30, 4, 14, 3) for better 
+a few more EM iterations. Since HMMs are generative, we could sample more data 
+from model for futher training and hyperparameters tuning.    
+
+3.2.2. Decision of rejection 
+There are two ways to reject the prediction. 1) set a minimum likelihood
+threshold, if the top phoneme predicted is below the likelihood threshold, 
+I would reject the decision. 
+Another way is to check the difference, between the top log likelihoods. In 
+the extreme case, if all likelihoods are the same for every phoneme, no 
+prediction should be made. 
+
+3.2.3. Alternatives
+Even though HMMs are standard for phoneme recognition, neural networks are 
+another great choice. More specific, there have been successful attempts 
+at using a three layer time delay neural network which achieves higher 
+accuracy than HMMs. In our assignment, we do not consider the order/context 
+of phoneme appearances, if we use a model which also considers history (previous 
+n phonemes) we could achieve higher accuracy.
+
+3.3 Word Error Rates
+
+Word Error Rates for entire data set
+Substitution Error Proportion = 0.1576
+Insertion Error Proportion = 0.0407
+Deletion Error Proportion = 0.0491
+Proportion of Total Error = 0.2474 
+Levenshtein Distance* = 0.2474
+
+Levenshtein distance is reported in decimal rather than percentage according 
+to TA instruction. 
+
+Substitution, Insersion and Deletion errors per utterance
+Uttrance       SE       IE         DE        Total E 
+unkn_1.txt     0.1667         0         0    0.1667
+unkn_10.txt    0.2000         0    0.1000    0.3000
+unkn_11.txt    0.1667         0         0    0.1667
+unkn_12.txt    0.3750    0.1250         0    0.5000
+unkn_13.txt    0.1000         0    0.2000    0.3000
+unkn_14.txt         0    0.1429         0    0.1429
+unkn_15.txt    0.1429         0    0.1429    0.2857
+unkn_16.txt    0.2000         0    0.2000    0.4000
+unkn_17.txt    0.2727         0         0    0.2727
+unkn_18.txt    0.0909    0.0909    0.0909    0.2727
+unkn_19.txt    0.2000         0         0    0.2000
+unkn_2.txt     0.2500         0         0    0.2500
+unkn_20.txt         0         0         0         0
+unkn_21.txt         0         0         0         0
+unkn_22.txt    0.2222    0.1111         0    0.3333
+unkn_23.txt    0.1818         0         0    0.1818
+unkn_24.txt    0.1000         0         0    0.1000
+unkn_25.txt         0         0         0         0
+unkn_26.txt    0.1667         0         0    0.1667
+unkn_27.txt    0.1667    0.1667    0.1667    0.5000
+unkn_28.txt    0.1000         0    0.1000    0.2000
+unkn_29.txt    0.4545    0.2727         0    0.7273
+unkn_3.txt         0         0         0         0
+unkn_30.txt    0.3333         0         0    0.3333
+unkn_4.txt     0.1111    0.1111         0    0.2222
+unkn_5.txt     0.2308         0    0.1538    0.3846
+unkn_6.txt     0.1429         0    0.1429    0.2857
+unkn_7.txt     0.1538         0    0.0769    0.2308
+unkn_8.txt     0.2000    0.2000    0.1000    0.5000
+unkn_9.txt         0         0         0         0

@@ -1,8 +1,10 @@
 dir_train = '/u/cs401/speechdata/Testing';
 
-addpath(genpath('bnt/'))
+addpath(genpath('/u/cs401/A3_ASR/code/FullBNT-1.0.7/')); 
 
-str_arr = {'phn_m4d14n1h.mat', 'phn_m8d14n3h.mat', 'phn_m8d14n1h.mat'};
+%array to iterate through pre generated models 
+%1 model is included in the test examples
+str_arr = {'phn.mat'};
 
 for mn = 1:numel(str_arr) 
     phn = load(str_arr{mn});
@@ -25,13 +27,16 @@ for mn = 1:numel(str_arr)
                 mfcc = mfcc(1:D, :); 
                 mfcc = mfcc'; 
                 fclose(fid); 
-
+                
+                %Keep track of which file is being evaluated 
                 display(speakers(s).name)
+                
                 %look for phonemes 
                 open_str = [dir_train  '/' name '.phn']; 
                 fid = fopen(open_str); 
                 phlist = textscan(fid, '%d %d %s'); 
                 fclose(fid); 
+                
                 for p = 2: length(phlist{1})-1
 
                     %dividing index by 128 considering observation interval 
@@ -48,6 +53,8 @@ for mn = 1:numel(str_arr)
 
                     for i = 1:numel(phn_fields)
                         field = char(phn_fields(i)); 
+                        
+                        %set likelihood to -infinity if phoneme not found 
                         try
                             LL = loglikHMM(phn.(field).HMM, data'); 
                         catch 
@@ -58,16 +65,25 @@ for mn = 1:numel(str_arr)
                     end 
 
                     m_ind = argmax(Phn_prob); 
+                    
+                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    % For debugging                          % 
+                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                     %display(['LL: ' int2str(Phn_prob(m_ind))]); 
                     %display(['Predicted: ' char(Phn_targ{m_ind})]); 
+                    
+                    %check if predicted phoneme matches target phoneme 
                     if strcmp(char(phlist{3}{p}), char(Phn_targ{m_ind}))
                         correct = correct + 1; 
                     end 
+                    %add to totla number estimated
                     total = total +1; 
                 end 
             end  
     end
     result = 1.0*correct/total; 
     display(['Accuracy: ' num2str(1.0*correct/total)]);
+    
+    %display results
     save(['result_' str_arr{mn}], 'result');  
 end
